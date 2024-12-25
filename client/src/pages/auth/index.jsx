@@ -12,7 +12,8 @@ function AuthPage() {
   const [activeTab,setActiveTab] = useState('signin')
   const {
     signInFormData, setSignInFormData,
-    signUpFormData, setSignUpFormData
+    signUpFormData, setSignUpFormData,
+    handleRegisterUser
   } = useContext(AuthContext)
 
   function handleTabChange(value){
@@ -91,6 +92,7 @@ function AuthPage() {
               formData={signUpFormData}
               setFormData={setSignUpFormData}
               isButtonDisabled={!checkIfSignUpFormIsValid()}
+              handleSubmit={handleRegisterUser}
               />
             </CardContent>
           </Card>

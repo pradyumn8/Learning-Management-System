@@ -2,35 +2,40 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-
+const authRoutes = require('./routes/auth-routes/index');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
-
-cors({
+// Apply CORS Middleware
+app.use(cors({
     origin: process.env.CLIENT_URL,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-});
+}));
 
 app.use(express.json());
 
-//database connection
-mongoose.connect(MONGO_URI)
-.then(() => console.log('mongoDB connected'))
-.catch((e) => console.log(e));
+// Database Connection
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch((e) => console.error(`DB Connection Error: ${e.message}`));
 
-//routes configuration
+// Routes Configuration
+app.use("/auth", authRoutes);
 
-app.use((err,req,res,next) => {
-    console.log(err.syack);
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack); // Correct typo here
     res.status(500).json({
         success: false,
-        message: 'Something went wrong'
-    })
-})
+        message: 'Something went wrong',
+        error: err.message,
+    });
+});
+
+// Start Server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
