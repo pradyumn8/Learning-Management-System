@@ -20,12 +20,12 @@ app.use(express.json());
 //database connection
 mongoose.connect(MONGO_URI)
 .then(() => console.log('mongoDB connected'))
-.catch(err => console.log(err));
+.catch((e) => console.log(e));
 
 //routes configuration
 
 app.use((err,req,res,next) => {
-    console.log(err);
+    console.log(err.syack);
     res.status(500).json({
         success: false,
         message: 'Something went wrong'
