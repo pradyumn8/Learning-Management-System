@@ -1,6 +1,6 @@
 
 
-import CommonForm from '@/common-form'
+import CommonForm from '@/components/common-form'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { signInFormControls, signUpFormControls } from '@/config'
@@ -16,22 +16,32 @@ function Authpage() {
         setSignInFormData,
         signUpFormData,
         setSignUpFormData,
-        handleRegisterUser
+        handleRegisterUser,
+        handleLoginUser
     } = useContext(AuthContext)
 
     function handleTabChange(value) {
         setActiveTab(value)
     }
 
-    function checkIfSignUpFormIsValid() {
+    function checkIfSignInFormIsValid() {
         return (
-            signUpFormData &&
-            signUpFormData.userName !== "" &&
-            signUpFormData.userEmail !== "" &&
-            signUpFormData.password !== ""
-        );
+            signInFormData &&
+            signInFormData.userEmail !== "" &&
+            signInFormData.password !== ""
+          );
     }
 
+    
+    function checkIfSignUpFormIsValid() {
+        return (
+          signUpFormData &&
+          signUpFormData.userName !== "" &&
+          signUpFormData.userEmail !== "" &&
+          signUpFormData.password !== ""
+        );
+      }
+  
 
     //for input data show on console
     console.log(signInFormData)
@@ -69,8 +79,8 @@ function Authpage() {
                                     buttonText={"Sign In"}
                                     formData={signInFormData}
                                     setFormData={setSignInFormData}
-                                    isButtonDisabled={!checkIfSignUpFormIsValid()}
-                                    handleSubmit={handleRegisterUser}
+                                    isButtonDisabled={!checkIfSignInFormIsValid()}
+                                    handleSubmit={handleLoginUser}
                                 />
                             </CardContent>
                         </Card>
@@ -90,6 +100,7 @@ function Authpage() {
                                     formData={signUpFormData}
                                     setFormData={setSignUpFormData}
                                     isButtonDisabled={!checkIfSignUpFormIsValid()}
+                                    handleSubmit={handleRegisterUser}
                                 />
                             </CardContent>
                         </Card>

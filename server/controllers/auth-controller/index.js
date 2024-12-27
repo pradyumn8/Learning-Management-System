@@ -64,6 +64,7 @@ const loginUser = async(req,res)=>{
         userEmail : checkUser.userEmail,
         role : checkUser.role
     },'JWT_SECRET',{expiresIn : '120m'})
+    
     res.status(200).json({
         success : true,
         message : 'Logged in successfully',
