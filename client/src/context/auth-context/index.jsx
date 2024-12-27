@@ -4,9 +4,7 @@ import { registerService, loginService, checkAuthService } from "@/services";
 import { createContext, useEffect, useState } from "react";
 
 
-
 export const AuthContext = createContext(null);
-
 
 export default function AuthProvider({ children }) {
 
@@ -40,7 +38,6 @@ export default function AuthProvider({ children }) {
                 authenticate: true,
                 user: response.data.data.user,
             });
-            setLoading(false)
             // console.log("Token set in sessionStorage:", response.data.data.accessToken);
         } else {
             setAuth({
@@ -48,13 +45,11 @@ export default function AuthProvider({ children }) {
                 user: null,
             });
             // console.error("Login failed:", response.data.message);
-            setLoading(false)
 
         }
     }
 
      // check auth user
-
 
      async function checkAuthUser() {
         try {
@@ -64,11 +59,13 @@ export default function AuthProvider({ children }) {
               authenticate: true,
               user: data.data.user,
             });
+            setLoading(false)
           } else {
             setAuth({
               authenticate: false,
               user: null,
             });
+            setLoading(false)
           }
         } catch (error) {
           console.log(error);
@@ -77,10 +74,17 @@ export default function AuthProvider({ children }) {
               authenticate: false,
               user: null,
             });
+            setLoading(false)
           }
         }
       }
     
+      // function resetCredentials(){
+      //   setAuth({
+      //     authenticate: false,
+      //     user : null
+      //   })
+      // }
 
     useEffect(()=>{
       checkAuthUser();
@@ -97,8 +101,9 @@ export default function AuthProvider({ children }) {
         handleRegisterUser,
         handleLoginUser,
         auth,
+        // resetCredentials
     }}>{
-        // loading ? <Skeleton/> : children
-        children
+        loading ? <Skeleton/> : children
     }</AuthContext.Provider>
 }
+

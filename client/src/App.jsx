@@ -5,6 +5,7 @@ import { useContext } from "react";
 import { AuthContext } from "./context/auth-context";
 import InstructorDashboardPage from "./pages/instructor";
 import StudentHomePage from "./pages/student/home";
+import NotFoundPage from "./pages/not-found";
 
 function App() {
 
@@ -36,6 +37,7 @@ function App() {
      />
       <Route path="" element={<StudentHomePage/>}/>
       <Route path="home" element={<StudentHomePage/>}/>
+      <Route path="*" element={<NotFoundPage/>}/>
     </Routes>
   );
 }
