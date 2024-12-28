@@ -27,7 +27,7 @@ export default function AuthProvider({ children }) {
     async function handleLoginUser(event) {
         event.preventDefault();
         const response = await loginService(signInFormData);
-        console.log(response, "Response from loginService");
+        // console.log(response, "Response from loginService");
     
         if (response.data.success && response.data.data.accessToken) {
             // Storing the token in sessionStorage correctly
@@ -90,7 +90,7 @@ export default function AuthProvider({ children }) {
       checkAuthUser();
   },[])
 
-  console.log(auth);
+  console.log(auth,"checkauth");
   
 
     return <AuthContext.Provider value={{
