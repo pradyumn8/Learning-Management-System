@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import VideoPlayer from '@/components/video-player';
 import { courseLandingInitialFormData } from '@/config';
 import { InstructorContext } from '@/context/instructor-context';
 import { mediaUploadService } from '@/services';
@@ -12,13 +13,13 @@ import React, { useContext } from 'react';
 
 function CourseCurriculum() {
 
-  const { 
-    courseCurriculumFormData, 
-    setCourseCurriculumFormData, 
-    mediaUploadProgress, 
-    setMediaUploadProgress, 
-    mediaUploadProgressPercentage, 
-    setMediaUploadProgressPercentage 
+  const {
+    courseCurriculumFormData,
+    setCourseCurriculumFormData,
+    mediaUploadProgress,
+    setMediaUploadProgress,
+    mediaUploadProgressPercentage,
+    setMediaUploadProgressPercentage
   } = useContext(InstructorContext);
 
   function handleNewLecture() {
@@ -70,8 +71,8 @@ function CourseCurriculum() {
           let cpyCourseCurriculamFormData = [...courseCurriculumFormData];
           cpyCourseCurriculamFormData[currentIndex] = {
             ...cpyCourseCurriculamFormData[currentIndex],
-            videoUrl : response?.data?.url,
-            public_id : response?.data?.public_id
+            videoUrl: response?.data?.url,
+            public_id: response?.data?.public_id
           }
           setCourseCurriculumFormData(cpyCourseCurriculamFormData)
           setMediaUploadProgress(false);
@@ -99,10 +100,10 @@ function CourseCurriculum() {
         </Button>
         {
           mediaUploadProgress ?
-          <MediaProgressbar
-          isMediaUploading={mediaUploadProgress}
-          progress={mediaUploadProgressPercentage}
-          /> : null
+            <MediaProgressbar
+              isMediaUploading={mediaUploadProgress}
+              progress={mediaUploadProgressPercentage}
+            /> : null
         }
         <div className="mt-4 space-y-4">
           {courseCurriculumFormData?.map((curriculumItem, index) => (
@@ -123,8 +124,34 @@ function CourseCurriculum() {
                   />
                   <Label htmlFor={`freePreview-${index + 1}`}>Free Preview</Label>
                 </div>
-                <div className='mt-6'>
-                  <Input type="file" accept="video/*" onChange={(event) => handleSingleLectureUpload(event, index)} className="mb-4" />
+                <div className="mt-6">
+                  {courseCurriculumFormData[index]?.videoUrl ? (
+                    <div className="flex gap-3">
+                      <VideoPlayer
+                        url={courseCurriculumFormData[index]?.videoUrl}
+                        width="450px"
+                        height="200px"
+                      />
+                      <Button onClick={() => handleReplaceVideo(index)}>
+                        Replace Video
+                      </Button>
+                      <Button
+                        onClick={() => handleDeleteLecture(index)}
+                        className="bg-red-900"
+                      >
+                        Delete Lecture
+                      </Button>
+                    </div>
+                  ) : (
+                    <Input
+                      type="file"
+                      accept="video/*"
+                      onChange={(event) =>
+                        handleSingleLectureUpload(event, index)
+                      }
+                      className="mb-4"
+                    />
+                  )}
                 </div>
               </div>
             </div>
