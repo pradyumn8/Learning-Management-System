@@ -16,7 +16,7 @@ function CourseCurriculum() {
     courseCurriculumFormData, 
     setCourseCurriculumFormData, 
     mediaUploadProgress, 
-      setMediaUploadProgress, 
+    setMediaUploadProgress, 
     mediaUploadProgressPercentage, 
     setMediaUploadProgressPercentage 
   } = useContext(InstructorContext);
