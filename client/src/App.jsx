@@ -7,6 +7,8 @@ import InstructorDashboardPage from "./pages/instructor";
 import StudentHomePage from "./pages/student/home";
 import NotFoundPage from "./pages/not-found";
 import AddNewCoursePage from "./pages/instructor/add-new-course";
+import StudentViewCommonLayout from "./student-view/common-layout";
+import StudentViewCoursesPage from "./pages/student/courses";
 
 function App() {
 
@@ -60,8 +62,24 @@ function App() {
         />
       }
      />
+      <Route
+      path="/"
+      element={
+        <RouteGuard
+        element={
+          <StudentViewCommonLayout/>
+        }
+        authenticated={auth?.authenticate}
+        user={auth?.user}
+        />
+      }
+     >
+
+      
       <Route path="" element={<StudentHomePage/>}/>
       <Route path="home" element={<StudentHomePage/>}/>
+      <Route path="courses" element={<StudentViewCoursesPage/>}/>
+      </Route>
       <Route path="*" element={<NotFoundPage/>}/>
     </Routes>
   );

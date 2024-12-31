@@ -1,24 +1,24 @@
 import axiosInstance from "@/api/axiosInstance";
 
 
-export async function registerService(formData){
-    const data = await axiosInstance.post('/auth/register',{
+export async function registerService(formData) {
+    const data = await axiosInstance.post('/auth/register', {
         ...formData,
-        role : 'user',
+        role: 'user',
     })
 
     return data
 }
 
 
-export async function loginService(formData){
-    const data = await axiosInstance.post('/auth/login',formData)
+export async function loginService(formData) {
+    const data = await axiosInstance.post('/auth/login', formData)
 
     return data
 }
 
 
-export async function checkAuthService(){
+export async function checkAuthService() {
     const data = await axiosInstance.get('/auth/check-auth')
 
     return data
@@ -26,7 +26,7 @@ export async function checkAuthService(){
 
 
 
-export async function mediaUploadService(formData, onProgressCallback = () => {}) {
+export async function mediaUploadService(formData, onProgressCallback = () => { }) {
     const { data } = await axiosInstance.post("/media/upload", formData, {
         onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
@@ -45,54 +45,70 @@ export async function mediaUploadService(formData, onProgressCallback = () => {}
 
 export async function mediaDeleteService(id) {
     const { data } = await axiosInstance.delete(`/media/delete/${id}`);
-  
+
     return data;
-  }
-  
-  export async function fetchInstructorCourseListService() {
+}
+
+export async function fetchInstructorCourseListService() {
     const { data } = await axiosInstance.get(`/instructor/course/get`);
-  
+
     return data;
-  }
-  
-  export async function addNewCourseService(formData) {
+}
+
+export async function addNewCourseService(formData) {
     const { data } = await axiosInstance.post(`/instructor/course/add`, formData);
-  
+
     return data;
-  }
+}
 
 
-  export async function fetchInstructorCourseDetailsService(id) {
+export async function fetchInstructorCourseDetailsService(id) {
     const { data } = await axiosInstance.get(`/instructor/course/get/details/${id}`);
-  
+
     return data;
-  }
+}
 
 
-  
+
 export async function updateCourseByIdService(id, formData) {
     const { data } = await axiosInstance.put(
-      `/instructor/course/update/${id}`,
-      formData
+        `/instructor/course/update/${id}`,
+        formData
     );
+
+    return data;
+}
+
+
+
+export async function mediaBulkUploadService(formData, onProgressCallback = () => { }) {
+    const { data } = await axiosInstance.post("/media/bulk-upload", formData, {
+        onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total
+            );
+            if (typeof onProgressCallback === "function") {
+                onProgressCallback(percentCompleted);
+            } else {
+                console.warn("onProgressCallback is not a function");
+            }
+        },
+    });
+    return data;
+}
+
+
+
+export async function fetchStudentCourseListService() {
+    const { data } = await axiosInstance.get(`/student/course/get`);
   
     return data;
   }
 
 
+
+export async function fetchStudentCourseDetailsService() {
+    const { data } = await axiosInstance.get(`/student/course/get/details/${courseId}`);
   
-export async function mediaBulkUploadService(formData, onProgressCallback = () => {}) {
-  const { data } = await axiosInstance.post("/media/bulk-upload", formData, {
-      onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-          );
-          if (typeof onProgressCallback === "function") {
-              onProgressCallback(percentCompleted);
-          } else {
-              console.warn("onProgressCallback is not a function");
-          }
-      },
-  });
-  return data;
-}
+    return data;
+  }

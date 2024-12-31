@@ -256,7 +256,7 @@ function CourseCurriculum() {
                         Replace Video
                       </Button>
                       <Button
-                        onClick={() => handleDeleteLecture(index)}
+                        cpyCourseCurriculumFormData={() => handleDeleteLecture(index)}
                         className="bg-red-900"
                       >
                         Delete Lecture
