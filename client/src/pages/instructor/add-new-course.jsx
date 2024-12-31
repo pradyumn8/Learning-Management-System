@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { courseCurriculumInitialFormData, courseLandingInitialFormData } from '@/config'
 import { AuthContext } from '@/context/auth-context'
 import { InstructorContext } from '@/context/instructor-context'
-import { addNewCourseService, updateCourseByIdService } from '@/services'
+import { addNewCourseService, fetchInstructorCourseDetailsService, updateCourseByIdService } from '@/services'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs'
 import React, { useContext, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -74,15 +74,15 @@ function AddNewCoursePage() {
       isPublised: true,
     };
 
-    const response =await addNewCourseService(courseFinalFormData);
+    // const response =await addNewCourseService(courseFinalFormData);
 
-    // const response =
-    //   currentEditedCourseId !== null
-    //     ? await updateCourseByIdService(
-    //         currentEditedCourseId,
-    //         courseFinalFormData
-    //       )
-    //     : await addNewCourseService(courseFinalFormData);
+    const response =
+      currentEditedCourseId !== null
+        ? await updateCourseByIdService(
+            currentEditedCourseId,
+            courseFinalFormData
+          )
+        : await addNewCourseService(courseFinalFormData);
 
     if (response?.success) {
       setCourseLandingFormData(courseLandingInitialFormData);
@@ -95,7 +95,7 @@ function AddNewCoursePage() {
   }
 
   async function fetchCurrentCourseDetails() {
-    const response = await fetchInstructorCourseDetailsService(
+    const response = await fetchInstructorCourseDetailsService  (
       currentEditedCourseId
     );
 
