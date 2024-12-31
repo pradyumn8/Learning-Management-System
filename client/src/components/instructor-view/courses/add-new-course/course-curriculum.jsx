@@ -126,6 +126,7 @@ function CourseCurriculum() {
     bulkUploadInputRef.current?.click();
   }
 
+
   function areAllCourseCurriculumFormDataObjectEmpty(arr) {
     return arr.every((obj) => {
       return Object.entries(obj).every(([key, value]) => {
@@ -174,7 +175,21 @@ function CourseCurriculum() {
     // console.log(selectedFiles)
   }
 
-  console.log(courseCurriculumFormData);
+  // console.log(courseCurriculumFormData);
+
+  async function handleDeleteLecture(currentIndex){
+    let cpyCourseCurriculumFormData = [...courseCurriculumFormData]
+    console.log(cpyCourseCurriculumFormData[currentIndex]);
+    const getCurrentVideoPublicId = cpyCourseCurriculumFormData[currentIndex].public_id
+
+    const response = await mediaDeleteService(getCurrentVideoPublicId);
+    if(response?.success){
+      cpyCourseCurriculumFormData = cpyCourseCurriculumFormData.filter((_,index)=> index !== currentIndex);
+      setCourseCurriculumFormData(cpyCourseCurriculumFormData);
+    }
+    
+  }
+
 
   return (
     <Card>
