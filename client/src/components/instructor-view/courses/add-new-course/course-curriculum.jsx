@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import VideoPlayer from '@/components/video-player';
 import { courseLandingInitialFormData } from '@/config';
 import { InstructorContext } from '@/context/instructor-context';
-import { mediaUploadService } from '@/services';
+import { mediaDeleteService, mediaUploadService } from '@/services';
 import React, { useContext } from 'react';
 
 
@@ -84,6 +84,42 @@ function CourseCurriculum() {
       }
     }
   }
+
+  
+  async function handleReplaceVideo(currentIndex) {
+    let cpyCourseCurriculumFormData = [...courseCurriculumFormData];
+    const getCurrentVideoPublicId =
+      cpyCourseCurriculumFormData[currentIndex].public_id;
+
+    const deleteCurrentMediaResponse = await mediaDeleteService(
+      getCurrentVideoPublicId
+    );
+    
+    console.log(deleteCurrentMediaResponse,'deleteCurrentMediaResponse')
+
+    if (deleteCurrentMediaResponse?.success) {
+      cpyCourseCurriculumFormData[currentIndex] = {
+        ...cpyCourseCurriculumFormData[currentIndex],
+        videoUrl: "",
+        public_id: "",
+      };
+
+      setCourseCurriculumFormData(cpyCourseCurriculumFormData);
+    }
+  }
+
+  function isCourseCurriculumFormDataValid() {
+    return courseCurriculumFormData.every((item) => {
+      return (
+        item &&
+        typeof item === "object" &&
+          item.title.trim() !== "" &&
+          item.videoUrl.trim() !== ""
+      );
+    });
+  }
+
+
 
   console.log(courseCurriculumFormData);
 
