@@ -7,8 +7,9 @@ import { Switch } from '@/components/ui/switch';
 import VideoPlayer from '@/components/video-player';
 import { courseLandingInitialFormData } from '@/config';
 import { InstructorContext } from '@/context/instructor-context';
-import { mediaDeleteService, mediaUploadService } from '@/services';
-import React, { useContext } from 'react';
+import { mediaBulkUploadService, mediaDeleteService, mediaUploadService } from '@/services';
+import { Upload } from 'lucide-react';
+import React, { useContext, useRef } from 'react';
 
 
 function CourseCurriculum() {
@@ -22,6 +23,8 @@ function CourseCurriculum() {
     setMediaUploadProgressPercentage
   } = useContext(InstructorContext);
 
+  const bulkUploadInputRef = useRef(null)
+
   function handleNewLecture() {
     setCourseCurriculumFormData([
       ...courseCurriculumFormData,
@@ -33,25 +36,25 @@ function CourseCurriculum() {
 
 
   function handleCourseTitleChange(event, currentIndex) {
-    let cpyCourseCurriculamFormData = [...courseCurriculumFormData];
-    // console.log(cpyCourseCurriculamFormData,'cpyCourseCurriculamFormData');
-    cpyCourseCurriculamFormData[currentIndex] = {
-      ...cpyCourseCurriculamFormData[currentIndex],
+    let cpyCourseCurriculumFormData = [...courseCurriculumFormData];
+    // console.log(cpyCourseCurriculumFormData,'cpyCourseCurriculumFormData');
+    cpyCourseCurriculumFormData[currentIndex] = {
+      ...cpyCourseCurriculumFormData[currentIndex],
       title: event.target.value
     }
-    // console.log(cpyCourseCurriculamFormData, 'cpyCourseCurriculamFormData')
-    setCourseCurriculumFormData(cpyCourseCurriculamFormData)
+    // console.log(cpyCourseCurriculumFormData, 'cpyCourseCurriculumFormData')
+    setCourseCurriculumFormData(cpyCourseCurriculumFormData)
   }
 
   function handleFreePreviewChange(currentValue, currentIndex) {
-    let cpyCourseCurriculamFormData = [...courseCurriculumFormData];
-    // console.log(cpyCourseCurriculamFormData,'cpyCourseCurriculamFormData');
-    cpyCourseCurriculamFormData[currentIndex] = {
-      ...cpyCourseCurriculamFormData[currentIndex],
+    let cpyCourseCurriculumFormData = [...courseCurriculumFormData];
+    // console.log(cpyCourseCurriculumFormData,'cpyCourseCurriculumFormData');
+    cpyCourseCurriculumFormData[currentIndex] = {
+      ...cpyCourseCurriculumFormData[currentIndex],
       freePreview: currentValue,
     };
-    // console.log(cpyCourseCurriculamFormData, 'cpyCourseCurriculamFormData')
-    setCourseCurriculumFormData(cpyCourseCurriculamFormData)
+    // console.log(cpyCourseCurriculumFormData, 'cpyCourseCurriculumFormData')
+    setCourseCurriculumFormData(cpyCourseCurriculumFormData)
   }
 
   async function handleSingleLectureUpload(event, currentIndex) {
@@ -68,13 +71,13 @@ function CourseCurriculum() {
         setMediaUploadProgress(true);
         const response = await mediaUploadService(videoFormData, setMediaUploadProgressPercentage);
         if (response.success) {
-          let cpyCourseCurriculamFormData = [...courseCurriculumFormData];
-          cpyCourseCurriculamFormData[currentIndex] = {
-            ...cpyCourseCurriculamFormData[currentIndex],
+          let cpyCourseCurriculumFormData = [...courseCurriculumFormData];
+          cpyCourseCurriculumFormData[currentIndex] = {
+            ...cpyCourseCurriculumFormData[currentIndex],
             videoUrl: response?.data?.url,
             public_id: response?.data?.public_id
           }
-          setCourseCurriculumFormData(cpyCourseCurriculamFormData)
+          setCourseCurriculumFormData(cpyCourseCurriculumFormData)
           setMediaUploadProgress(false);
         }
         console.log(response, 'response');
@@ -85,7 +88,7 @@ function CourseCurriculum() {
     }
   }
 
-  
+
   async function handleReplaceVideo(currentIndex) {
     let cpyCourseCurriculumFormData = [...courseCurriculumFormData];
     const getCurrentVideoPublicId =
@@ -94,8 +97,8 @@ function CourseCurriculum() {
     const deleteCurrentMediaResponse = await mediaDeleteService(
       getCurrentVideoPublicId
     );
-    
-    console.log(deleteCurrentMediaResponse,'deleteCurrentMediaResponse')
+
+    console.log(deleteCurrentMediaResponse, 'deleteCurrentMediaResponse')
 
     if (deleteCurrentMediaResponse?.success) {
       cpyCourseCurriculumFormData[currentIndex] = {
@@ -113,20 +116,86 @@ function CourseCurriculum() {
       return (
         item &&
         typeof item === "object" &&
-          item.title.trim() !== "" &&
-          item.videoUrl.trim() !== ""
+        item.title.trim() !== "" &&
+        item.videoUrl.trim() !== ""
       );
     });
   }
 
+  function handleOpenBulkUploadDialog() {
+    bulkUploadInputRef.current?.click();
+  }
 
+  function areAllCourseCurriculumFormDataObjectEmpty(arr) {
+    return arr.every((obj) => {
+      return Object.entries(obj).every(([key, value]) => {
+        if (typeof value === 'boolean') {
+          return true
+        }
+        return value === ''
+      })
+    })
+  }
+
+  async function handleMediaBulkUpload(event) {
+    const selectedFiles = Array.from(event.target.files)
+    const bulkFormData = new FormData()
+
+    selectedFiles.forEach(fileItem => bulkFormData.append('files', fileItem))
+
+    try {
+      setMediaUploadProgress(true);
+      const response = await mediaBulkUploadService(bulkFormData, setMediaUploadProgressPercentage)
+
+      console.log(response, "bulk");
+      if (response?.success) {
+        let cpyCourseCurriculumFormData = areAllCourseCurriculumFormDataObjectEmpty(courseCurriculumFormData)
+          ? [] : [...courseCurriculumFormData]
+
+        cpyCourseCurriculumFormData = [
+          ...cpyCourseCurriculumFormData,
+          ...response?.data.map((item, index) => ({
+            videoUrl: item?.url,
+            public_id: item?.public_id,
+            title: `Lecture ${cpyCourseCurriculumFormData.length + (index + 1)}`,
+            freePreview: false
+          }))
+        ]
+        setCourseCurriculumFormData(cpyCourseCurriculumFormData);
+        setMediaUploadProgress(false)
+
+        // console.log(courseCurriculumFormData,cpyCourseCurriculumFormData,'check cpyCourseCurriculumFormData');
+
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+    // console.log(selectedFiles)
+  }
 
   console.log(courseCurriculumFormData);
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row justify-between">
         <CardTitle>Create Course Curriculum</CardTitle>
+        <div>
+          <Input
+            type="file"
+            ref={bulkUploadInputRef}
+            accept="video/*"
+            multiple
+            className="hidden"
+            id="bulk-media-uplaod"
+            onChange={handleMediaBulkUpload}
+          />
+          <Button as="label" htmlFor="bulk-media-uplaod"
+            variant="outline"
+            className="cursor-pointer"
+            onClick={handleOpenBulkUploadDialog}
+          ><Upload className='w-4 h-5 mr-2' />Bulk Upload</Button>
+        </div>
       </CardHeader>
       <CardContent>
         <Button
