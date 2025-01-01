@@ -12,7 +12,7 @@ import { fetchStudentCourseListService } from '@/services';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { ArrowUpDownIcon } from 'lucide-react';
 import React, { useContext, useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 
 function createSearchParamsHelper(fitlerParams) {
@@ -32,11 +32,8 @@ function StudentViewCoursesPage() {
     const [sort, setSort] = useState("price-lowtohigh")
     const [filters, setFilters] = useState({});
     const [searchParams, setSearchParams] = useSearchParams()
-<<<<<<< HEAD
     const { studentViewCoursesList, setStudentViewCoursesList, loadingState, setLoadingState } = useContext(StudentContext);
-=======
-    const { studentViewCoursesList, setStudentViewCoursesList, loadingState,setLoadingState } = useContext(StudentContext);
->>>>>>> 436afd0449a690c28ef6976b52bb435e856d7024
+    const navigate = useNavigate()
 
 
     function handleFilterOnChange(getSectionId, getCurrentOption) {
@@ -61,17 +58,10 @@ function StudentViewCoursesPage() {
         sessionStorage.setItem('filters', JSON.stringify(cpyFilters));
     }
 
-<<<<<<< HEAD
     async function fetchAllStudentViewCourses(filters, sort) {
         const query = new URLSearchParams({
             ...filters,
             sortBy: sort
-=======
-    async function fetchAllStudentViewCourses(filters,sort) {
-        const query = new URLSearchParams({
-            ...filters,
-            sortBy : sort
->>>>>>> 436afd0449a690c28ef6976b52bb435e856d7024
         })
         const response = await fetchStudentCourseListService(query);
         if (response?.success) {
@@ -87,7 +77,6 @@ function StudentViewCoursesPage() {
         const buildQueryStringForFilters = createSearchParamsHelper(filters)
         setSearchParams(new URLSearchParams(buildQueryStringForFilters))
     }, [filters]);
-<<<<<<< HEAD
 
     useEffect(() => {
         setSort('price-lowtohigh')
@@ -106,26 +95,6 @@ function StudentViewCoursesPage() {
     }, [])
 
     console.log(loadingState, 'setLoadingState');
-=======
-
-    useEffect(()=>{
-        setSort('price-lowtohigh')
-        setFilters(JSON.parse(sessionStorage.getItem('filters')) || { })
-    },[]);
-
-    useEffect(() => {
-        if(filters !== null && sort !== null)
-        fetchAllStudentViewCourses(filters, sort);
-    }, [filters,sort]);
-
-    useEffect(()=>{
-        return ()=>{
-            sessionStorage.removeItem('filters')
-        }
-    },[])
-
-        console.log(loadingState,'setLoadingState');
->>>>>>> 436afd0449a690c28ef6976b52bb435e856d7024
 
     return (
         <div className='container mx-auto p-4'>
@@ -180,7 +149,6 @@ function StudentViewCoursesPage() {
                                 </DropdownMenuRadioGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>
-<<<<<<< HEAD
                         <span className="text-sm text-black font-bold">
                   {studentViewCoursesList.length} Results
                 </span>
@@ -188,7 +156,7 @@ function StudentViewCoursesPage() {
                     <div className='space-y-4'>
                         {studentViewCoursesList && studentViewCoursesList.length > 0 ? (
                             studentViewCoursesList.map((courseItem) => (
-                                <Card className="cursor-pointer" key={courseItem?._id}>
+                                <Card onClick={()=>navigate(`/course/details/${courseItem?._id}`)} className="cursor-pointer" key={courseItem?._id}>
                                     <CardContent className="flex gap-4 p-4">
                                         <div className="w-48 h-32 flex-shrink-0">
                                             <img
@@ -218,48 +186,6 @@ function StudentViewCoursesPage() {
                             <h1 className="font-extrabold text-4xl">No Courses Found</h1>
                         )}
 
-=======
-                        <span className='text-sm text-black font-bolds'>{studentViewCoursesList.length} Results</span>
-                    </div>
-                    <div className='space-y-4'>
-                        {
-                            loadingState & <Skeleton/>
-                        }
-                        {
-                            studentViewCoursesList && studentViewCoursesList.length > 0 ?
-                                studentViewCoursesList.map(courseItem => (
-                                    <Card className="cursor-pointer" key={courseItem?._id}>
-                                        <CardContent className="flex gap-4 p-4">
-                                            <div className="w-48 h-32 flex-shrink-0">
-                                                <img src={courseItem?.image}
-                                                    className='w-full h-full object-cover'
-                                                />
-                                            </div>
-                                            <div className="flex-1">
-                                                <CardTitle className="text-xl mb-2">{courseItem?.title}</CardTitle>
-                                                <p className="text-sm text-gray-600 mb-1">
-                                                    Created By{" "}
-                                                    <span className="font-bold">
-                                                        {courseItem?.instructorName}
-                                                    </span>
-                                                </p>
-                                                <p className='text-[16px] text-gray-600 mt-3 mb-2'>
-                                                    {
-                                                        `${courseItem?.curriculum?.length} ${courseItem?.curriculum?.length <= 1
-                                                            ? "Lecture"
-                                                            : "Lectures"
-                                                        } - ${courseItem?.level.toUpperCase()} Level`
-                                                    }
-                                                </p>
-                                                <p className='font-bold text-lg'>${courseItem?.pricing}</p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                )) : 
-                            loadingState ? ( <Skeleton/> ) : ( 
-                                <h1 className='font-extrabold text-4xl'>No Courses Found</h1>
-                        )}
->>>>>>> 436afd0449a690c28ef6976b52bb435e856d7024
                     </div>
                 </main>
             </div>

@@ -107,7 +107,7 @@ export async function fetchStudentCourseListService(query) {
 
 
 
-export async function fetchStudentCourseDetailsService() {
+export async function fetchStudentViewCourseDetailsService(courseId) {
     const { data } = await axiosInstance.get(`/student/course/get/details/${courseId}`);
   
     return data;
