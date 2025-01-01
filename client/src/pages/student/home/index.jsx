@@ -7,22 +7,22 @@ import { fetchStudentCourseListService } from '@/services';
 
 function StudentHomePage() {
 
-const {studentViewCoursesList, setStudentViewCoursesList}=useContext(StudentContext);
+  const { studentViewCoursesList, setStudentViewCoursesList } = useContext(StudentContext);
 
-async function fetchAllStudentViewCourses(){
-  const response = await fetchStudentCourseListService();
-  if(response?.success) setStudentViewCoursesList(response?.data)
+  async function fetchAllStudentViewCourses() {
+    const response = await fetchStudentCourseListService();
+    if (response?.success) setStudentViewCoursesList(response?.data)
 
-  // console.log(response);
-  
-}
+    // console.log(response);
 
-useEffect(()=>{
-  fetchAllStudentViewCourses()
-},[])
+  }
+
+  useEffect(() => {
+    fetchAllStudentViewCourses()
+  }, [])
 
   return (
-<div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white">
       <section className="flex flex-col lg:flex-row items-center justify-between py-8 px-4 lg:px-8">
         <div className="lg:w-1/2 lg:pr-12">
           <h1 className="text-4xl font-bold mb-4">Learning that gets you</h1>
@@ -43,11 +43,11 @@ useEffect(()=>{
         <h2 className="text-2xl font-bold mb-6">Course Categories</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {courseCategories.map((categoryItem) => (
-            <Button 
+            <Button
               className="justify-start"
               variant="outline"
               key={categoryItem.id}
-             
+
             >
               {categoryItem.label}
             </Button>
@@ -85,7 +85,7 @@ useEffect(()=>{
           )}
         </div>
       </section>
-</div>
+    </div>
   )
 }
 
