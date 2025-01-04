@@ -49,42 +49,47 @@ export default function AuthProvider({ children }) {
         }
     }
 
+    
      // check auth user
 
      async function checkAuthUser() {
-        try {
-          const data = await checkAuthService();
-          if (data.success) {
+    try {
+        const token = sessionStorage.getItem("accessToken");
+
+        if (!token) {
             setAuth({
-              authenticate: true,
-              user: data.data.user,
+                authenticate: false,
+                user: null,
             });
-            setLoading(false)
-          } else {
-            setAuth({
-              authenticate: false,
-              user: null,
-            });
-            setLoading(false)
-          }
-        } catch (error) {
-          console.log(error);
-          if (!error?.response?.data?.success) {
-          setAuth({
-              authenticate: false,
-              user: null,
-            });
-            setLoading(false)
-          }
+            setLoading(false);
+            return;
         }
-      }
-    
-      // function resetCredentials(){
-      //   setAuth({
-      //     authenticate: false,
-      //     user : null
-      //   })
-      // }
+
+        const data = await checkAuthService(token); // Pass the token to the service
+        if (data.success) {
+            setAuth({
+                authenticate: true,
+                user: data.data.user,
+            });
+        } else {
+            sessionStorage.removeItem("accessToken"); // Clear invalid token
+            setAuth({
+                authenticate: false,
+                user: null,
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        sessionStorage.removeItem("accessToken"); // Clear token on error
+        setAuth({
+            authenticate: false,
+            user: null,
+        });
+    } finally {
+        setLoading(false); // Ensure loading state ends
+    }
+}
+
 
     useEffect(()=>{
       checkAuthUser();

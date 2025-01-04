@@ -3,8 +3,6 @@ import { Navigate, useLocation } from "react-router-dom";
 
 
 
-
-
 function RouteGuard({authenticated, user, element}){
 
   const location = useLocation();

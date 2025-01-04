@@ -18,10 +18,33 @@ export async function loginService(formData) {
 }
 
 
-export async function checkAuthService() {
-    const data = await axiosInstance.get('/auth/check-auth')
+// export async function checkAuthService() {
+//     const data = await axiosInstance.get('/auth/check-auth')
 
-    return data
+//     return data
+// }
+export async function checkAuthService() {
+    try {
+        // Retrieve the token from sessionStorage
+        const token = sessionStorage.getItem("accessToken");
+
+        // Ensure the token exists before making the request
+        if (!token) {
+            return { success: false, message: "No token found" };
+        }
+
+        // Make the API call with the Authorization header
+        const response = await axiosInstance.get('/auth/check-auth', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data; // Return the response data directly
+    } catch (error) {
+        console.error("Error in checkAuthService:", error.message);
+        return { success: false, message: "Authentication failed" };
+    }
 }
 
 

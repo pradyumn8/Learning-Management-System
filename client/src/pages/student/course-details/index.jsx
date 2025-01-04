@@ -198,11 +198,13 @@ function StudentViewCourseDetailsPage() {
                             height='200px'
                         />
                     </div>
+                    
                     <div className="flex flex-col gap-2">
                         {studentViewCourseDetails?.curriculum
                             ?.filter((item) => item.freePreview)
-                            .map((filteredItem) => (
+                            .map((filteredItem, index) => (
                                 <p
+                                    key={filteredItem.id || index} // Use a unique identifier, fallback to index if none exists
                                     onClick={() => handleSetFreePreview(filteredItem)}
                                     className="cursor-pointer text-[16px] font-medium"
                                 >
@@ -210,6 +212,7 @@ function StudentViewCourseDetailsPage() {
                                 </p>
                             ))}
                     </div>
+
                     <DialogFooter className="sm:justify-start">
                         <DialogClose asChild>
                             <Button type="button" variant="secondary">
