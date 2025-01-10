@@ -137,13 +137,6 @@ export async function fetchStudentViewCourseDetailsService(courseId) {
   }
 
 
-//   export async function createPaymentService(formData) {
-//     const { data } = await axiosInstance.post(`/student/order/create`, formData);
-
-//     return data;
-// }
-
-
 export async function createPaymentService(formData) {
     try {
         const { data } = await axiosInstance.post(`/student/order/create`, formData);
@@ -154,21 +147,14 @@ export async function createPaymentService(formData) {
     }
 }
 
-export async function captureAndFinalizePaymentService(
-  razorpay_order_id,
-  razorpay_payment_id,
-  razorpay_signature
-) {
-  try {
-    const { data } = await axiosInstance.post(`/student/order/capture`, {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-    });
-
-    return data;
-  } catch (error) {
-    console.error("Error in captureAndFinalizePaymentService:", error);
-    return { success: false, error: error.response?.data?.message || "An error occurred" };
+export async function captureAndFinalizePaymentService(captureData) {
+    try {
+      const { data } = await axiosInstance.post(`/student/order/capture`, captureData);
+  
+      return data;
+    } catch (error) {
+      console.error("Error in captureAndFinalizePaymentService:", error);
+      return { success: false, error: error.response?.data?.message || "An error occurred" };
+    }
   }
-}
+  

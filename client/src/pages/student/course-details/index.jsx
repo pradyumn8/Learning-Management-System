@@ -144,7 +144,7 @@ function StudentViewCourseDetailsPage() {
             description: "Test Mode",
             order_id: data.id,
             handler: async (response) => {
-                console.log("response", response);
+                console.log("Razorpay response:", response);
                 try {
                     // Prepare payment details to capture and finalize the payment
                     const captureData = {
