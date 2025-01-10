@@ -9,7 +9,7 @@ require('dotenv').config();
 
 const createOrder = async (req, res) => {
     const {
-        coursePricing, // Use coursePricing instead of amount
+        coursePricing, 
         userId,
         userName,
         userEmail,

@@ -160,7 +160,7 @@ export async function captureAndFinalizePaymentService(
   razorpay_signature
 ) {
   try {
-    const { data } = await axiosInstance.post(`/student/order/verify`, {
+    const { data } = await axiosInstance.post(`/student/order/capture`, {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,

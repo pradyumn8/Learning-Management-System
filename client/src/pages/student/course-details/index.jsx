@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Toast } from '@/components/ui/toast';
 import VideoPlayer from '@/components/video-player';
 import { AuthContext } from '@/context/auth-context';
 import { StudentContext } from '@/context/student-context'
@@ -139,7 +140,7 @@ function StudentViewCourseDetailsPage() {
             key: import.meta.env.RAZORPAY_KEY_ID,
             amount: data.amount,
             currency: data.currency,
-            name: "Devknus",
+            name: "StudyBride",
             description: "Test Mode",
             order_id: data.id,
             handler: async (response) => {
@@ -155,7 +156,7 @@ function StudentViewCourseDetailsPage() {
                     // Capture and finalize the payment with backend service
                     const verifyData = await captureAndFinalizePaymentService(captureData);
                     if (verifyData.success) {
-                        toast.success(verifyData.message); // Show success message
+                        Toast.success(verifyData.message); // Show success message
                     } else {
                         console.error("Payment verification failed:", verifyData.error);
                     }

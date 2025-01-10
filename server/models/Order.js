@@ -18,6 +18,9 @@ const OrderSchema = new mongoose.Schema({
     courseTitle: String,
     courseId: String,
     coursePricing: String,
+    razorpayOrderId: String,
+    razorpayPaymentId: String,
+    razorpaySignature: String,
 })
 
 module.exports = mongoose.model('Order', OrderSchema)
