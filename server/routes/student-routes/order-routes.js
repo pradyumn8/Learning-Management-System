@@ -5,6 +5,6 @@ const {createOrder, capturePaymentAndFinalizeOrder}=require('../../controllers/s
 const router = express.Router();
 
 router.post('/create',createOrder)
-router.post('/capure',capturePaymentAndFinalizeOrder)
+router.post('/capture',capturePaymentAndFinalizeOrder)
 
 module.exports = router;

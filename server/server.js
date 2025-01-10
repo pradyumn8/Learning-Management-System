@@ -23,7 +23,7 @@ app.use(cors({
 app.use(express.json());
 
 // Database Connection
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(MONGO_URI)
     .then(() => console.log('MongoDB connected'))
     .catch((e) => console.error(`DB Connection Error: ${e.message}`));
 
@@ -32,7 +32,9 @@ app.use("/auth", authRoutes);
 app.use("/media", mediaRoutes);
 app.use("/instructor/course", instructorCourseRoutes);
 app.use("/student/course", studentViewCourseRoutes);
+app.use(express.json());
 app.use("/student/order", studentViewOrderRoutes);
+
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

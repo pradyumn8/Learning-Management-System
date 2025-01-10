@@ -7,13 +7,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import VideoPlayer from '@/components/video-player';
 import { AuthContext } from '@/context/auth-context';
 import { StudentContext } from '@/context/student-context'
-import { createPaymentService, fetchStudentViewCourseDetailsService } from '@/services';
+import { captureAndFinalizePaymentService, createPaymentService, fetchStudentViewCourseDetailsService } from '@/services';
 import { CheckCircle, Globe, Lock, PlayCircle } from 'lucide-react';
 import React, { useContext, useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom';
 
 function StudentViewCourseDetailsPage() {
-
+ 
     const {
         studentViewCourseDetails,
         setStudentViewCourseDetails,
@@ -53,34 +53,126 @@ function StudentViewCourseDetailsPage() {
         )
     }
 
-    async function handleCreatePayment(){
+    // async function handleCreatePayment() {
+    //     console.log("handleCreatePayment triggered");
+    //     const paymentPayload = {
+    //         userId: auth?.user?._id,
+    //         userName: auth?.user?.userName,
+    //         userEmail: auth?.user?.userEmail,
+    //         amount: studentViewCourseDetails?.pricing, // Add amount here
+    //         orderStatus: 'pending',
+    //         paymentMethod: 'razorpay',
+    //         paymentStatus: 'initiated',
+    //         orderDate: new Date(),
+    //         instructorId: studentViewCourseDetails?.instructorId,
+    //         instructorName: studentViewCourseDetails?.instructorName,
+    //         courseImage: studentViewCourseDetails?.image,
+    //         courseTitle: studentViewCourseDetails?.title,
+    //         courseId: studentViewCourseDetails?._id,
+    //         coursePricing: studentViewCourseDetails?.pricing,
+    //     };
+        
+    
+    //     console.log("Payment Payload:", paymentPayload);
+    
+    //     const response = await createPaymentService(paymentPayload);
+    
+    //     if (response.success) {
+    //         console.log("Order created successfully:", response.data);
+    //         sessionStorage.setItem('currentOrderId', JSON.stringify(response?.data?.orderId));
+    //     } else {
+    //         console.error("Payment creation failed:", response.error);
+    //     }
+    // }
+
+    async function handleCreatePayment() {
+        console.log("handleCreatePayment triggered");
+    
+        // Payment payload for creating an order
         const paymentPayload = {
-            userId : auth?.user?._id,
-            userName : auth?.user?.userName,
-            userEmail : auth?.user?.userEmail,
-            orderStatus : 'pending',
-            paymentMethod : 'paypal',
-            paymentStatus : 'initiated',
-            orderDate : new Date(),
-            paymentId : '',
-            payerId : '',
-            instructorId : studentViewCourseDetails?.instructorId,
-            instructorName : studentViewCourseDetails?.instructorName,
-            courseImage : studentViewCourseDetails?.image,
-            courseTitle : studentViewCourseDetails?.title,
-            courseId : studentViewCourseDetails?._id,
-            coursePricing : studentViewCourseDetails?.pricing,
+            userId: auth?.user?._id,
+            userName: auth?.user?.userName,
+            userEmail: auth?.user?.userEmail,
+            orderStatus: 'pending',
+            paymentMethod: 'razorpay',
+            paymentStatus: 'initiated',
+            orderDate: new Date(),
+            instructorId: studentViewCourseDetails?.instructorId,
+            instructorName: studentViewCourseDetails?.instructorName,
+            courseImage: studentViewCourseDetails?.image,
+            courseTitle: studentViewCourseDetails?.title,
+            courseId: studentViewCourseDetails?._id,
+            coursePricing: studentViewCourseDetails?.pricing,
         };
-
-        console.log(paymentPayload, "paymentPayload");
-        const response = await createPaymentService(paymentPayload);
-
-        if(response.success){
-            sessionStorage.setItem('currentOrderId', JSON.stringify(response?.data?.orderId))
-            setApprovalUrl(response?.data?.approvalUrl)
+    
+        console.log("Payment Payload:", paymentPayload);
+    
+        try {
+            const response = await createPaymentService(paymentPayload);
+        
+            console.log("Create Payment Response:", response);
+        
+            if (response.success) {
+                console.log("Order created successfully:", response.data);
+        
+                // Store the orderId if needed
+                sessionStorage.setItem('currentOrderId', JSON.stringify(response?.data?.id)); 
+        
+                // Set the approval URL
+                setApprovalUrl(response?.data?.approvalUrl);
+        
+                // Handle Razorpay or other payment gateway verification
+                handlePaymentVerify(response.data);
+            } else {
+                console.error("Payment creation failed:", response.error);
+            }
+        } catch (error) {
+            console.error("Error while creating payment:", error);
         }
+        
+        
     }
-
+    
+    // Function to verify payment after Razorpay success
+    const handlePaymentVerify = async (data) => {
+        const options = {
+            key: import.meta.env.RAZORPAY_KEY_ID,
+            amount: data.amount,
+            currency: data.currency,
+            name: "Devknus",
+            description: "Test Mode",
+            order_id: data.id,
+            handler: async (response) => {
+                console.log("response", response);
+                try {
+                    // Prepare payment details to capture and finalize the payment
+                    const captureData = {
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                    };
+    
+                    // Capture and finalize the payment with backend service
+                    const verifyData = await captureAndFinalizePaymentService(captureData);
+                    if (verifyData.success) {
+                        toast.success(verifyData.message); // Show success message
+                    } else {
+                        console.error("Payment verification failed:", verifyData.error);
+                    }
+                } catch (error) {
+                    console.log("Payment verification failed:", error);
+                }
+            },
+            theme: {
+                color: "#5f63b8"
+            }
+        };
+    
+        const rzp1 = new window.Razorpay(options);
+        rzp1.open();
+    };
+    
+    
     useEffect(() => {
         if (displayCurrentVideoFreePriview !== null) setShowFreePreviewDialog(true)
     }, [displayCurrentVideoFreePriview])
@@ -103,9 +195,10 @@ function StudentViewCourseDetailsPage() {
 
     if (loadingState) return <Skeleton />;
 
-    if(approvalUrl !== ''){
-        window.location.href = approvalUrl;
-    }
+    // if(approvalUrl !== ''){
+    //     console.log("Redirecting to approval URL:", approvalUrl); 
+    //     window.location.href = approvalUrl;
+    // }
 
     const getIndexOfFreePreviewUrl = studentViewCourseDetails !== null ?
         studentViewCourseDetails?.curriculum?.findIndex(item => item.freePreview)
