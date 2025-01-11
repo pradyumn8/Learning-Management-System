@@ -11,7 +11,7 @@ import StudentViewCommonLayout from "./student-view/common-layout";
 import StudentViewCoursesPage from "./pages/student/courses";
 import StudentViewCourseDetailsPage from "./pages/student/course-details";
 import RazorpayPaymentReturnPage from "./pages/student/payment-return";
-import StudentCoursesPage from "./pages/student/home/student-courses";
+import StudentCoursesPage from "./pages/student/student-courses";
 import StudentViewCourseProgressPage from "./pages/student/course-progress";
 
 function App() {
@@ -86,7 +86,7 @@ function App() {
       <Route path="course/details/:id" element={<StudentViewCourseDetailsPage/>}/>
       <Route path="payment-return" element={<RazorpayPaymentReturnPage/>}/>
       <Route path="student-courses" element={<StudentCoursesPage/>}/>
-      <Route path="course-progress" element={<StudentViewCourseProgressPage/>}/>
+      <Route path="course-progress/:id" element={<StudentViewCourseProgressPage/>}/>
       </Route>
       <Route path="*" element={<NotFoundPage/>}/>
     </Routes>

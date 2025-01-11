@@ -8,10 +8,10 @@ import { Toast } from '@/components/ui/toast';
 import VideoPlayer from '@/components/video-player';
 import { AuthContext } from '@/context/auth-context';
 import { StudentContext } from '@/context/student-context'
-import { captureAndFinalizePaymentService, createPaymentService, fetchStudentViewCourseDetailsService } from '@/services';
+import { captureAndFinalizePaymentService, checkCoursePurchaseInfoService, createPaymentService, fetchStudentViewCourseDetailsService } from '@/services';
 import { CheckCircle, Globe, Lock, PlayCircle } from 'lucide-react';
 import React, { useContext, useEffect, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 function StudentViewCourseDetailsPage() {
  
@@ -29,14 +29,23 @@ function StudentViewCourseDetailsPage() {
     const [displayCurrentVideoFreePriview, setDisplayCurrentVideoFreePreview] = useState(null)
     const [showFreePreviewDialog, setShowFreePreviewDialog] = useState(false)
     const [approvalUrl, setApprovalUrl] = useState('')
-
+    const navigate = useNavigate()
     const { id } = useParams()
     const location = useLocation()
 
     async function fetchStudentViewCourseDetails() {
 
+        const checkCoursePurchaseInfoResponse = await checkCoursePurchaseInfoService(currentCourseDetailsId, auth?.user._id)  
+
+        if(checkCoursePurchaseInfoResponse?.success && checkCoursePurchaseInfoResponse?.data){
+            navigate(`/course-progress/${currentCourseDetailsId}`)
+            return
+        }
+
+        // console.log(checkCoursePurchaseInfoResponse,'checkCoursePurchaseInfoResponse')
+
         const response = await fetchStudentViewCourseDetailsService(
-            currentCourseDetailsId,auth?.user?._id);
+            currentCourseDetailsId);
 
         // console.log(response,'fetchStudentViewCourseDetails');
 
@@ -45,6 +54,7 @@ function StudentViewCourseDetailsPage() {
             setLoadingState(false)
         } else {
             setStudentViewCourseDetails(null)
+            setCoursePurchaseId(false)
             setLoadingState(false)
         }
 
@@ -54,38 +64,6 @@ function StudentViewCourseDetailsPage() {
         setDisplayCurrentVideoFreePreview(getCurrentVideoInfo?.videoUrl
         )
     }
-
-    // async function handleCreatePayment() {
-    //     console.log("handleCreatePayment triggered");
-    //     const paymentPayload = {
-    //         userId: auth?.user?._id,
-    //         userName: auth?.user?.userName,
-    //         userEmail: auth?.user?.userEmail,
-    //         amount: studentViewCourseDetails?.pricing, // Add amount here
-    //         orderStatus: 'pending',
-    //         paymentMethod: 'razorpay',
-    //         paymentStatus: 'initiated',
-    //         orderDate: new Date(),
-    //         instructorId: studentViewCourseDetails?.instructorId,
-    //         instructorName: studentViewCourseDetails?.instructorName,
-    //         courseImage: studentViewCourseDetails?.image,
-    //         courseTitle: studentViewCourseDetails?.title,
-    //         courseId: studentViewCourseDetails?._id,
-    //         coursePricing: studentViewCourseDetails?.pricing,
-    //     };
-        
-    
-    //     console.log("Payment Payload:", paymentPayload);
-    
-    //     const response = await createPaymentService(paymentPayload);
-    
-    //     if (response.success) {
-    //         console.log("Order created successfully:", response.data);
-    //         sessionStorage.setItem('currentOrderId', JSON.stringify(response?.data?.orderId));
-    //     } else {
-    //         console.error("Payment creation failed:", response.error);
-    //     }
-    // }
 
     async function handleCreatePayment() {
         console.log("handleCreatePayment triggered");
@@ -217,16 +195,19 @@ function StudentViewCourseDetailsPage() {
 
     useEffect(() => {
         if (!location.pathname.includes('course/details')) (
-            setStudentViewCourseDetails(null), setCurrentCourseDetailsId(null)
+            setStudentViewCourseDetails(null), 
+            setCurrentCourseDetailsId(null),
+            setCoursePurchaseId(null)
         )
+
     }, [location.pathname])
 
     if (loadingState) return <Skeleton />;
 
-    // if(approvalUrl !== ''){
-    //     console.log("Redirecting to approval URL:", approvalUrl); 
-    //     window.location.href = approvalUrl;
-    // }
+    if(approvalUrl !== ''){
+        console.log("Redirecting to approval URL:", approvalUrl); 
+        window.location.href = approvalUrl;
+    }
 
     const getIndexOfFreePreviewUrl = studentViewCourseDetails !== null ?
         studentViewCourseDetails?.curriculum?.findIndex(item => item.freePreview)
