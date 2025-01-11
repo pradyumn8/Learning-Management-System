@@ -130,8 +130,10 @@ export async function fetchStudentCourseListService(query) {
 
 
 
-export async function fetchStudentViewCourseDetailsService(courseId) {
-    const { data } = await axiosInstance.get(`/student/course/get/details/${courseId}`);
+export async function fetchStudentViewCourseDetailsService(courseId,studentId) {
+    const { data } = await axiosInstance.get(
+        `/student/course/get/details/${courseId}/${studentId}`
+    );
   
     return data;
   }
@@ -147,9 +149,10 @@ export async function createPaymentService(formData) {
     }
 }
 
-export async function captureAndFinalizePaymentService(captureData) {
+export async function captureAndFinalizePaymentService(razorpay_order_id, razorpay_payment_id, razorpay_signature) {
     try {
-      const { data } = await axiosInstance.post(`/student/order/capture`, captureData);
+    //   const { data } = await axiosInstance.post(`/student/order/capture`, captureData);
+      const { data } = await axiosInstance.post(`/student/order/capture`, {razorpay_order_id, razorpay_payment_id, razorpay_signature});
   
       return data;
     } catch (error) {
@@ -157,4 +160,26 @@ export async function captureAndFinalizePaymentService(captureData) {
       return { success: false, error: error.response?.data?.message || "An error occurred" };
     }
   }
+
+
+
+//   export async function fetchStudentBoughtCoursesService(studentId) {
+//       const { data } = await axiosInstance.get(`/student/courses-bought/get/${studentId}`);
+    
+//       return data;
+//     }
+  
+
+export async function fetchStudentBoughtCoursesService(studentId) {
+    try {
+        console.log(`Fetching bought courses for student ID: ${studentId}`);
+        const { data } = await axiosInstance.get(`/student/courses-bought/get/${studentId}`);
+        console.log('Fetched courses data:', data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching student bought courses:', error);
+        return { success: false, error: error.response?.data?.message || 'An error occurred' };
+    }
+}
+  
   

@@ -7,6 +7,7 @@ const mediaRoutes = require('./routes/instructor-routes/media-routes');
 const instructorCourseRoutes = require('./routes/instructor-routes/course-routes');
 const studentViewCourseRoutes= require('./routes/student-routes/course-routes');
 const studentViewOrderRoutes= require('./routes/student-routes/order-routes');
+const studentCoursesRoutes= require('./routes/student-routes/student-courses-routes');
 
 
 const app = express();
@@ -28,12 +29,13 @@ mongoose.connect(MONGO_URI)
     .catch((e) => console.error(`DB Connection Error: ${e.message}`));
 
 // Routes Configuration
+app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/media", mediaRoutes);
 app.use("/instructor/course", instructorCourseRoutes);
 app.use("/student/course", studentViewCourseRoutes);
-app.use(express.json());
 app.use("/student/order", studentViewOrderRoutes);
+app.use("/student/courses-bought", studentCoursesRoutes);
 
 
 // Error Handling Middleware

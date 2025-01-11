@@ -76,8 +76,94 @@ const createOrder = async (req, res) => {
 };
 
 // ROUTE 2 : Create Verify Api Using POST Method http://localhost:4000/api/payment/verify
-const capturePaymentAndFinalizeOrder = async (req, res) => {
 
+// const capturePaymentAndFinalizeOrder = async (req, res) => {
+
+//     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+//     try {
+//         // Create Sign
+//         const sign = razorpay_order_id + "|" + razorpay_payment_id;
+
+//         // Create ExpectedSign
+//         const expectedSign = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY)
+//             .update(sign.toString())
+//             .digest("hex");
+
+//         // Create isAuthentic
+//         const isAuthentic = expectedSign === razorpay_signature;
+
+//         // Condition 
+//         if (isAuthentic) {
+//             const order = await Order.findOne({ razorpayOrderId: razorpay_order_id });
+
+//             if (!order) {
+//                 return res.status(404).json({ message: 'Order not found!' });
+//             }
+
+//             // Update order status to "paid"
+//             order.paymentStatus = 'paid';
+//             order.orderStatus = 'confirmed';
+//             order.razorpayPaymentId = razorpay_payment_id;
+//             order.razorpaySignature = razorpay_signature;
+
+//             await order.save();
+
+//             // Update StudentCourses
+//             const studentCourses = await StudentCourses.findOne({ userId: order.userId });
+
+//             if (studentCourses) {
+//                 studentCourses.courses.push({
+//                     courseId: order.courseId,
+//                     title: order.courseTitle,
+//                     instructorId: order.instructorId,
+//                     instructorName: order.instructorName,
+//                     dateOfPurchase: order.orderDate,
+//                     courseImage: order.courseImage,
+//                 });
+//                 await studentCourses.save();
+//             } else {
+//                 const newStudentCourses = new StudentCourses({
+//                     userId: order.userId,
+//                     courses: [
+//                         {
+//                             courseId: order.courseId,
+//                             title: order.courseTitle,
+//                             instructorId: order.instructorId,
+//                             instructorName: order.instructorName,
+//                             dateOfPurchase: order.orderDate,
+//                             courseImage: order.courseImage,
+//                         },
+//                     ],
+//                 });
+//                 await newStudentCourses.save();
+//             }
+
+//             // Update Course schema with student details
+//             await Course.findByIdAndUpdate(order.courseId, {
+//                 $addToSet: {
+//                     students: {
+//                         studentId: order.userId,
+//                         studentName: order.userName,
+//                         studentEmail: order.userEmail,
+//                         paidAmount: order.coursePricing,
+//                     },
+//                 },
+//             });
+
+//             res.json({ message: "Payment Successfully" });
+//         } else {
+//             res.status(400).json({ message: "Invalid signature!" });
+//         }
+//     } catch (error) {
+//         res.status(500).json({ message: "Internal Server Error!" });
+//         console.log(error);
+//     }
+// };
+
+
+//try to implement redirect to payment return route
+const capturePaymentAndFinalizeOrder = async (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
     try {
@@ -100,57 +186,74 @@ const capturePaymentAndFinalizeOrder = async (req, res) => {
                 return res.status(404).json({ message: 'Order not found!' });
             }
 
-            // Update order status to "paid"
-            order.paymentStatus = 'paid';
-            order.orderStatus = 'confirmed';
-            order.razorpayPaymentId = razorpay_payment_id;
-            order.razorpaySignature = razorpay_signature;
+            // Prepare the capture data to be sent to your backend service for payment finalization
+            const captureData = {
+                razorpay_order_id: razorpay_order_id,
+                razorpay_payment_id: razorpay_payment_id,
+                razorpay_signature: razorpay_signature,
+            };
 
-            await order.save();
+            // Call the service to capture and finalize the payment (ensure this function is defined)
+            // const verifyData = await captureAndFinalizePaymentService(captureData);
+            const verifyData = await captureAndFinalizePaymentService(razorpay_order_id, razorpay_payment_id, razorpay_signature);
 
-            // Update StudentCourses
-            const studentCourses = await StudentCourses.findOne({ userId: order.userId });
+            // If payment is verified successfully, proceed with updating the order and related data
+            if (verifyData.success) {
+                // Update order status to "paid"
+                order.paymentStatus = 'paid';
+                order.orderStatus = 'confirmed';
+                order.razorpayPaymentId = razorpay_payment_id;
+                order.razorpaySignature = razorpay_signature;
 
-            if (studentCourses) {
-                studentCourses.courses.push({
-                    courseId: order.courseId,
-                    title: order.courseTitle,
-                    instructorId: order.instructorId,
-                    instructorName: order.instructorName,
-                    dateOfPurchase: order.orderDate,
-                    courseImage: order.courseImage,
-                });
-                await studentCourses.save();
-            } else {
-                const newStudentCourses = new StudentCourses({
-                    userId: order.userId,
-                    courses: [
-                        {
-                            courseId: order.courseId,
-                            title: order.courseTitle,
-                            instructorId: order.instructorId,
-                            instructorName: order.instructorName,
-                            dateOfPurchase: order.orderDate,
-                            courseImage: order.courseImage,
+                await order.save();
+
+                // Update StudentCourses
+                const studentCourses = await StudentCourses.findOne({ userId: order.userId });
+
+                if (studentCourses) {
+                    studentCourses.courses.push({
+                        courseId: order.courseId,
+                        title: order.courseTitle,
+                        instructorId: order.instructorId,
+                        instructorName: order.instructorName,
+                        dateOfPurchase: order.orderDate,
+                        courseImage: order.courseImage,
+                    });
+                    await studentCourses.save();
+                } else {
+                    const newStudentCourses = new StudentCourses({
+                        userId: order.userId,
+                        courses: [
+                            {
+                                courseId: order.courseId,
+                                title: order.courseTitle,
+                                instructorId: order.instructorId,
+                                instructorName: order.instructorName,
+                                dateOfPurchase: order.orderDate,
+                                courseImage: order.courseImage,
+                            },
+                        ],
+                    });
+                    await newStudentCourses.save();
+                }
+
+                // Update Course schema with student details
+                await Course.findByIdAndUpdate(order.courseId, {
+                    $addToSet: {
+                        students: {
+                            studentId: order.userId,
+                            studentName: order.userName,
+                            studentEmail: order.userEmail,
+                            paidAmount: order.coursePricing,
                         },
-                    ],
-                });
-                await newStudentCourses.save();
-            }
-
-            // Update Course schema with student details
-            await Course.findByIdAndUpdate(order.courseId, {
-                $addToSet: {
-                    students: {
-                        studentId: order.userId,
-                        studentName: order.userName,
-                        studentEmail: order.userEmail,
-                        paidAmount: order.coursePricing,
                     },
-                },
-            });
+                });
 
-            res.json({ message: "Payment Successfully" });
+                // Redirect to the payment return route
+                res.redirect(`/payment-return?courseId=${order.courseId}`);
+            } else {
+                res.status(400).json({ message: "Payment verification failed: " + verifyData.error });
+            }
         } else {
             res.status(400).json({ message: "Invalid signature!" });
         }

@@ -35,7 +35,8 @@ function StudentViewCourseDetailsPage() {
 
     async function fetchStudentViewCourseDetails() {
 
-        const response = await fetchStudentViewCourseDetailsService(currentCourseDetailsId);
+        const response = await fetchStudentViewCourseDetailsService(
+            currentCourseDetailsId,auth?.user?._id);
 
         // console.log(response,'fetchStudentViewCourseDetails');
 
@@ -145,24 +146,50 @@ function StudentViewCourseDetailsPage() {
             order_id: data.id,
             handler: async (response) => {
                 console.log("Razorpay response:", response);
-                try {
-                    // Prepare payment details to capture and finalize the payment
-                    const captureData = {
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature: response.razorpay_signature,
-                    };
+                // try {
+                //     // Prepare payment details to capture and finalize the payment
+                //     const captureData = {
+                //         razorpay_order_id: response.razorpay_order_id,
+                //         razorpay_payment_id: response.razorpay_payment_id,
+                //         razorpay_signature: response.razorpay_signature,
+                //     };
     
-                    // Capture and finalize the payment with backend service
-                    const verifyData = await captureAndFinalizePaymentService(captureData);
-                    if (verifyData.success) {
-                        Toast.success(verifyData.message); // Show success message
-                    } else {
-                        console.error("Payment verification failed:", verifyData.error);
+                //     // Capture and finalize the payment with backend service
+                //     const verifyData = await captureAndFinalizePaymentService( razorpay_order_id,
+                //         razorpay_payment_id,
+                //         razorpay_signature);
+                //     if (verifyData.success) {
+                //         Toast.success(verifyData.message); // Show success message
+                //     } else {
+                //         console.error("Payment verification failed:", verifyData.error);
+                //     }
+                // } catch (error) {
+                //     console.log("Payment verification failed:", error);
+                // }
+                    try {
+                        // Prepare payment details to capture and finalize the payment
+                        const captureData = {
+                            razorpay_order_id: response.data.razorpay_order_id,
+                            razorpay_payment_id: response.data.razorpay_payment_id,
+                            razorpay_signature: response.data.razorpay_signature,
+                        };
+                    
+                        // Capture and finalize the payment with backend service
+                        const verifyData = await captureAndFinalizePaymentService(
+                            captureData.razorpay_order_id,
+                            captureData.razorpay_payment_id,
+                            captureData.razorpay_signature
+                        );
+                    
+                        if (verifyData.success) {
+                            // Toast.success(verifyData.message); // Show success message
+                            console.log(verifyData.message,'verifyData.message'); // Show success message
+                        } else {
+                            console.error("Payment verification failed:", verifyData.error);
+                        }
+                    } catch (error) {
+                        console.log("Payment verification failed:", error);
                     }
-                } catch (error) {
-                    console.log("Payment verification failed:", error);
-                }
             },
             theme: {
                 color: "#5f63b8"
