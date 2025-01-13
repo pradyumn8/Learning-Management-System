@@ -139,7 +139,7 @@ export async function fetchStudentViewCourseDetailsService(courseId) {
   }
 
 
-export async function checkCoursePurchaseInfoService(courseId) {
+export async function checkCoursePurchaseInfoService(courseId, studentId) {
     const { data } = await axiosInstance.get(
         `/student/course/purchase-info/${courseId}/${studentId}`
     );
@@ -192,3 +192,11 @@ export async function fetchStudentBoughtCoursesService(studentId) {
 }
   
   
+
+export async function getCurrentCourseProgressService(userId, courseId) {
+    const { data } = await axiosInstance.get(
+        `/student/course-progress/get/${userId}/${courseId}`
+    );
+  
+    return data;
+  }
