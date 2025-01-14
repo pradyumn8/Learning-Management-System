@@ -26,7 +26,9 @@ const getCurrentCourseProgress = async (req, res) => {
         if (!isCurrentCoursePurchasedByCurrentUserOrNot) {
             return res.status(200).json({
                 success: false,
-                isPurchased: false,
+                data: {
+                isPurchased: true,
+                },
                 message: 'You have not purchased this course'
             })
         }
@@ -45,7 +47,8 @@ const getCurrentCourseProgress = async (req, res) => {
                 data: {
                     courseDetails: course,
                     progress: [],
-                    isPurchased: true
+                    isPurchased: true,
+                    // completed: true,
                 },
             });
         }
