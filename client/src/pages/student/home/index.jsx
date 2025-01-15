@@ -4,10 +4,25 @@ import { Button } from '@/components/ui/button';
 import { useContext, useEffect } from 'react';
 import { StudentContext } from '@/context/student-context';
 import { fetchStudentCourseListService } from '@/services';
+import { AuthContext } from '@/context/auth-context';
+import { useNavigate } from 'react-router-dom';
 
 function StudentHomePage() {
 
   const { studentViewCoursesList, setStudentViewCoursesList } = useContext(StudentContext);
+  const {auth} = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  function handleNavigateToCoursesPage(getCurrentId){
+    console.log(getCurrentId);
+    sessionStorage.removeItem('filters');
+    const currentFilter = {
+      category : [getCurrentId]
+    }
+    sessionStorage.setItem('filters', JSON.stringify(currentFilter));
+
+    navigate('/courses');
+  }
 
   async function fetchAllStudentViewCourses() {
     const response = await fetchStudentCourseListService();
@@ -47,7 +62,7 @@ function StudentHomePage() {
               className="justify-start"
               variant="outline"
               key={categoryItem.id}
-
+              onClick={()=>handleNavigateToCoursesPage(categoryItem.id)}
             >
               {categoryItem.label}
             </Button>

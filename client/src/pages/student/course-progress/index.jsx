@@ -1,14 +1,13 @@
 import { Button } from "@/components/ui/button"
-import { DialogHeader } from "@/components/ui/dialog";
+import { DialogHeader, Dialog, DialogContent, DialogDescription, DialogTitle  } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { TabsTrigger, TabsContent, TabsList  } from "@/components/ui/tabs";
 import VideoPlayer from "@/components/video-player";
 import { AuthContext } from "@/context/auth-context";
 import { StudentContext } from "@/context/student-context";
-import { getCurrentCourseProgressService } from "@/services";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
-import { TabsContent, TabsList } from "@radix-ui/react-tabs";
-import { ChevronLeft, ChevronRight } from "lucide-react"
+// import { getCurrentCourseProgressService } from "@/services";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react"
 import { useContext, useEffect, useState } from "react";
 import Confetti from 'react-confetti';
 import { useNavigate, useParams } from "react-router-dom";
@@ -18,7 +17,7 @@ function StudentViewCourseProgressPage() {
 
   const navigate = useNavigate();
   const { auth } = useContext(AuthContext);
-  const [StudentCurrentCourseProgress, setStudentCurrentCourseProgress] = useState(StudentContext);
+  const [studentCurrentCourseProgress, setstudentCurrentCourseProgress] = useState(StudentContext);
   const [lockCourse, setLockCourse] = useState(false)
   const [currentLecture, setCurrentLecture] = useState(null)
   const [showCourseCompleteDiolog, setShowCourseCompleteDiolog] = useState(false)
@@ -37,8 +36,8 @@ function StudentViewCourseProgressPage() {
 
         setLockCourse(true)
       } else {
-        setStudentCurrentCourseProgress({
-          courseDatails: response?.data?.courseDatails,
+        setstudentCurrentCourseProgress({
+          courseDetails: response?.data?.courseDetails,
           progress: response?.data?.progress
         })
 
@@ -52,13 +51,30 @@ function StudentViewCourseProgressPage() {
 
 
         if (response?.data?.progress?.length === 0) {
-          console.log(response?.data, "response?.data");
+          // console.log(response?.data, "response?.data");
 
-          setCurrentLecture(response?.data?.courseDatails?.curriculum[0])
+          setCurrentLecture(response?.data?.courseDetails?.curriculum[0])
         } else {
-          // later
-
+          console.log('logging here');
+          const lastIndexOfViewedAsTrue = response?.data?.progress.reduceRight(
+            (acc, curr, index) => {
+              return acc === -1 && obj.viewed ? index : acc
+            }, -1
+          )
+          setCurrentLecture(
+            response?.data?.courseDetails?.curriculum[
+              lastIndexOfViewedAsTrue + 1])
         }
+      }
+    }
+  }
+
+  async function updateCourseProgress(){
+    if(currentLecture){
+      const response = await markLectureAsViewedService(auth?.user?._id, studentCurrentCourseProgress?.courseDetails._id, currentLecture._id)
+
+      if(response?.success){
+        fetchCurrentCourseProgress()
       }
     }
   }
@@ -68,12 +84,17 @@ function StudentViewCourseProgressPage() {
     fetchCurrentCourseProgress();
   }, [id])
 
+  useEffect(()=>{
+    if(currentLecture?.
+      progressValue === 1)updateCourseProgress()
+  },[currentLecture])
+
   useEffect(() => {
-    if (showConfetti) setTimeout(() => setShowConfetti(false), 5000)
+    if (showConfetti) setTimeout(() => setShowConfetti(false), 15000)
   }, [showConfetti]);
 
   // // console.log(lockCourse,'lockCourse');
-  // console.log(StudentCurrentCourseProgress, 'StudentCurrentCourseProgress');
+  // console.log(studentCurrentCourseProgress, 'studentCurrentCourseProgress');
   console.log(currentLecture, 'currentLecture');
 
 
@@ -95,7 +116,7 @@ function StudentViewCourseProgressPage() {
           </Button>
           <h1 className="text-lg font-bold hidden md:block">
             {
-              StudentCurrentCourseProgress?.courseDatails?.title
+              studentCurrentCourseProgress?.courseDetails?.title
             }
           </h1>
         </div>
@@ -112,6 +133,8 @@ function StudentViewCourseProgressPage() {
             width="100%"
             height="500px"
             url={currentLecture?.videoUrl}
+            onProgressUpdate={setCurrentLecture}
+            progressData={currentLecture}
           />
           <div className="p-6 bg-[#1c1d1f]">
             <h2 className="text-2xl font-bold mb-2">{currentLecture?.title}</h2>
@@ -128,9 +151,32 @@ function StudentViewCourseProgressPage() {
           </TabsTrigger>
           </TabsList>
           <TabsContent value="content">
-          <Scrolarea>
-            
-          </Scrolarea>
+          <ScrollArea className="h-full">
+          <div className="p-4 space-y-4">
+          {
+            studentCurrentCourseProgress?.courseDetails?.curriculum.map(item=>(
+              <div className="flex items-center space-x-2 text-sm text-white font-bold cursor-pointer" key={item._id}>
+                {
+                  studentCurrentCourseProgress?.progress?.find(progressItem => progressItem.lectureId === item._id)?.viewed ?
+                  <Check className="h-4 w-4 text-green-500"/> :  
+                  <Play/>
+                }
+                <span>{item?.title}</span>
+              </div>
+            ))
+          }
+          </div>
+          </ScrollArea>
+          </TabsContent>
+          <TabsContent value="overview" className="flex-1 overflow-hidden">
+           <ScrollArea className="h-full">
+            <div className="p-4">
+              <h2 className="text-sl font-bold mb-4">About this course</h2>
+              <p className="text-gray-400">
+                {studentCurrentCourseProgress?.courseDetails?.description}
+              </p>
+            </div>
+            </ScrollArea> 
           </TabsContent>
         </Tabs>
         </div>

@@ -1,5 +1,5 @@
 import {Outlet} from 'react-router-dom'
-import StudentViewCommonHeader from './header';
+import StudentViewCommonHeader from '../components/student-view/header';
 
 function StudentViewCommonLayout() {
   return (
