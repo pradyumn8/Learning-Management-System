@@ -3,7 +3,7 @@ import banner from '../../../../public/banner-img.png'
 import { Button } from '@/components/ui/button';
 import { useContext, useEffect } from 'react';
 import { StudentContext } from '@/context/student-context';
-import { fetchStudentCourseListService } from '@/services';
+import { checkCoursePurchaseInfoService, fetchStudentCourseListService } from '@/services';
 import { AuthContext } from '@/context/auth-context';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,6 +22,21 @@ function StudentHomePage() {
     sessionStorage.setItem('filters', JSON.stringify(currentFilter));
 
     navigate('/courses');
+  }
+  
+  async function handleCourseNavigate(getCurrentCourseId) {
+    const response = await checkCoursePurchaseInfoService(
+      getCurrentCourseId,
+      auth?.user?._id
+    );
+
+    if (response?.success) {
+      if (response?.data) {
+        navigate(`/course-progress/${getCurrentCourseId}`);
+      } else {
+        navigate(`/course/details/${getCurrentCourseId}`);
+      }
+    }
   }
 
   async function fetchAllStudentViewCourses() {

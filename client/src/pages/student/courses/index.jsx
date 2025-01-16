@@ -75,32 +75,47 @@ function StudentViewCoursesPage() {
     }
 
     // async function handleCourseNavigate(getCurrentCourseId) {
-    //     const response = await checkCoursePurchaseInfoService(getCurrentCourseId,auth?.user?._id);
-        
-    //     if(response?.success){
-    //         navigate(`/course-progress/${getCurrentCourseId}`)
-    //     } else {
-    //         navigate(`/course/details/${getCurrentCourseId}`)
-    //     }
-    //     console.log(response, "handleCourseNavigate");
-        
-    // }
+    //     const response = await checkCoursePurchaseInfoService(
+    //       getCurrentCourseId,
+    //       auth?.user?._id
+    //     );
     
-    async function handleCourseNavigate(getCurrentCourseId) {
+    //     if (response?.success) {
+    //       if (response?.data) {
+    //         navigate(`/course-progress/${getCurrentCourseId}`);
+    //       } else {
+    //         navigate(`/course/details/${getCurrentCourseId}`);
+    //       }
+    //     }
+    //   }
+      async function handleCourseNavigate(getCurrentCourseId) {
         try {
-            const response = await checkCoursePurchaseInfoService(getCurrentCourseId, auth?.user?._id);
-            
+            const response = await checkCoursePurchaseInfoService(
+                getCurrentCourseId,
+                auth?.user?._id
+            );
+    
             if (response?.success) {
-                navigate(`/course-progress/${getCurrentCourseId}`);
+                if (response.data) {
+                    // Course is purchased; redirect to course progress
+                    navigate(`/course-progress/${getCurrentCourseId}`);
+                } else {
+                    // Course is not purchased; redirect to course details
+                    navigate(`/course/details/${getCurrentCourseId}`);
+                }
             } else {
-                navigate(`/course/details/${getCurrentCourseId}`);
+                // Handle failure response
+                console.error("Error:", response.message);
+                alert(response.message || "Unable to fetch course purchase info.");
             }
-            console.log(response, 'handleCourseNavigate');
         } catch (error) {
-            console.error('Error in handleCourseNavigate:', error);
+            console.error("Error in handleCourseNavigate:", error);
+            alert("An unexpected error occurred. Please try again later.");
         }
     }
     
+    
+ 
     useEffect(() => {
         const buildQueryStringForFilters = createSearchParamsHelper(filters)
         setSearchParams(new URLSearchParams(buildQueryStringForFilters))

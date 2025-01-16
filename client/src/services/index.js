@@ -129,32 +129,26 @@ export async function fetchStudentCourseListService(query) {
   }
 
 
-
-export async function fetchStudentViewCourseDetailsService(courseId) {
+  export async function fetchStudentViewCourseDetailsService(courseId) {
     const { data } = await axiosInstance.get(
-        `/student/course/get/details/${courseId}}`
+        `/student/course/get/details/${courseId}`
     );
-  
     return data;
-  }
+}
 
 
-export async function checkCoursePurchaseInfoService(courseId, studentId) {
-    // const { data } = await axiosInstance.get(
-    //     `/student/course/purchase-info/${courseId}/${studentId}`
-    // );
-  
-    // return data;
+  export async function checkCoursePurchaseInfoService(courseId, studentId) {
     try {
         const { data } = await axiosInstance.get(
             `/student/course/purchase-info/${courseId}/${studentId}`
         );
         return data;
     } catch (error) {
-        console.error('Error in checkCoursePurchaseInfoService:', error);
-        throw error;
+        console.error("Error in checkCoursePurchaseInfoService:", error);
+        return { success: false, message: error.response?.data?.message || "Unknown error" };
     }
-  }
+}
+
 
 
 export async function createPaymentService(formData) {

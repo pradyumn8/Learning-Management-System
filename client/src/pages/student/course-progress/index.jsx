@@ -4,8 +4,6 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogOverlay,
-  DialogPortal,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -41,7 +39,10 @@ function StudentViewCourseProgressPage() {
     const response = await getCurrentCourseProgressService(auth?.user?._id, id);
     if (response?.success) {
       if (!response?.data?.isPurchased) {
+        console.log("isPurchased");
+
         setLockCourse(true);
+
       } else {
         setStudentCurrentCourseProgress({
           courseDetails: response?.data?.courseDetails,
@@ -117,6 +118,8 @@ function StudentViewCourseProgressPage() {
     if (showConfetti) setTimeout(() => setShowConfetti(false), 15000);
   }, [showConfetti]);
 
+  console.log(lockCourse,'lockCourse');
+  console.log(studentCurrentCourseProgress, 'studentCurrentCourseProgress');
   console.log(currentLecture, "currentLecture");
 
   return (
