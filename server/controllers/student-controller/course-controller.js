@@ -63,58 +63,105 @@ const getAllStudentViewCourses = async (req, res) => {
     }
 };
 
-
 const getStudentViewCourseDetails = async (req, res) => {
     try {
-
-        const { id } = req.params;
-        const courseDetails = await Course.findById(id);
-
-        if (!courseDetails) {
-            return res.status(404).json({
-                success: false,
-                message: 'No course details found',
-                data: null,
-            });
-        }
-
-        // Check if the course is already bought by the student
-        // const studentCourses = await StudentCourses.findOne({ 
-        //     userId: studentId
-        // });
-
-        // console.log(studentCourses, 'studentCourses');
-        // const ifStudentAlreadyBoughtCurrentCourse = 
-        // studentCourses.courses.findIndex(item=> item.courseId === id) > -1;
-        // console.log(ifStudentAlreadyBoughtCurrentCourse, 'studentCourses');
-
-        res.status(200).json({
-            success: true,
-            data: ifStudentAlreadyBoughtCurrentCourse,
+      const { id } = req.params;
+      const courseDetails = await Course.findById(id);
+  
+      if (!courseDetails) {
+        return res.status(404).json({
+          success: false,
+          message: "No course details found",
+          data: null,
         });
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            success: false,
-            message: 'Some error occured!'
-        })
+      }
+  
+      res.status(200).json({
+        success: true,
+        data: courseDetails,
+      });
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({
+        success: false,
+        message: "Some error occured!",
+      });
     }
-};
-
-const checkCoursePurchaseInfo = async (req, res) => {
+  };
+  
+  const checkCoursePurchaseInfo = async (req, res) => {
     try {
-        const {id, studentId} = req.params;
-        const studentCourses = await StudentCourses.findOne({ userId: studentId });
-        const ifStudentAlreadyBoughtCurrentCourse = studentCourses.courses.findIndex(item=> item.courseId === id) > -1;
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            success: false,
-            message: 'Some error occured!'
-        })
-        
+      const { id, studentId } = req.params;
+      const studentCourses = await StudentCourses.findOne({
+        userId: studentId,
+      });
+  
+      const ifStudentAlreadyBoughtCurrentCourse =
+        studentCourses.courses.findIndex((item) => item.courseId === id) > -1;
+      res.status(200).json({
+        success: true,
+        data: ifStudentAlreadyBoughtCurrentCourse,
+      });
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({
+        success: false,
+        message: "Some error occured!",
+      });
     }
-}
+  };
+
+// const getStudentViewCourseDetails = async (req, res) => {
+//     try {
+
+//         const { id } = req.params;
+//         const courseDetails = await Course.findById(id);
+
+//         if (!courseDetails) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: 'No course details found',
+//                 data: null,
+//             });
+//         }
+
+//         // Check if the course is already bought by the student
+//         // const studentCourses = await StudentCourses.findOne({ 
+//         //     userId: studentId
+//         // });
+
+//         console.log(StudentCourses, 'studentCourses');
+//         const ifStudentAlreadyBoughtCurrentCourse = 
+//         StudentCourses.courses.findIndex(item=> item.courseId === id) > -1;
+//         console.log(ifStudentAlreadyBoughtCurrentCourse, 'studentCourses');
+
+//         res.status(200).json({
+//             success: true,
+//             data: ifStudentAlreadyBoughtCurrentCourse,
+//         });
+
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({
+//             success: false,
+//             message: 'Some error occured!'
+//         })
+//     }
+// };
+
+// const checkCoursePurchaseInfo = async (req, res) => {
+//     try {
+//         const {id, studentId} = req.params;
+//         const studentCourses = await StudentCourses.findOne({ userId: studentId });
+//         const ifStudentAlreadyBoughtCurrentCourse = studentCourses.courses.findIndex(item=> item.courseId === id) > -1;
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({
+//             success: false,
+//             message: 'Some error occured!'
+//         })
+        
+//     }
+// }
 
 module.exports = { getAllStudentViewCourses, getStudentViewCourseDetails, checkCoursePurchaseInfo }

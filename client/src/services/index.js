@@ -140,11 +140,20 @@ export async function fetchStudentViewCourseDetailsService(courseId) {
 
 
 export async function checkCoursePurchaseInfoService(courseId, studentId) {
-    const { data } = await axiosInstance.get(
-        `/student/course/purchase-info/${courseId}/${studentId}`
-    );
+    // const { data } = await axiosInstance.get(
+    //     `/student/course/purchase-info/${courseId}/${studentId}`
+    // );
   
-    return data;
+    // return data;
+    try {
+        const { data } = await axiosInstance.get(
+            `/student/course/purchase-info/${courseId}/${studentId}`
+        );
+        return data;
+    } catch (error) {
+        console.error('Error in checkCoursePurchaseInfoService:', error);
+        throw error;
+    }
   }
 
 
@@ -192,14 +201,9 @@ export async function fetchStudentBoughtCoursesService(studentId) {
 }
   
   
-
-export async function resetCourseProgressService(userId, courseId) {
-    const { data } = await axiosInstance.post(
-        `/student/course-progress/reset-progress`,
-        {
-            userId,
-            courseId,
-        }
+export async function getCurrentCourseProgressService(userId, courseId) {
+    const { data } = await axiosInstance.get(
+      `/student/course-progress/get/${userId}/${courseId}`
     );
   
     return data;
@@ -207,7 +211,7 @@ export async function resetCourseProgressService(userId, courseId) {
   
   
 
-export async function markCurrentLectureAsCompletedService(userId, courseId) {
+export async function markLectureAsCompletedService(userId, courseId, lectureId) {
     const { data } = await axiosInstance.post(
         `/student/course-progress/mark-lecture-viewed`,{
             userId, 
@@ -215,20 +219,20 @@ export async function markCurrentLectureAsCompletedService(userId, courseId) {
             lectureId
         }
     );
-  
+    
     return data;
   }
  
   
 
-// export async function resetCourseProgressService(userId, courseId) {
-//     const { data } = await axiosInstance.post(
-//         `/student/course-progress/reset-progress`, 
-//         {
-//             userId, 
-//             courseId
-//         }
-//     );
+export async function resetCourseProgressService(userId, courseId) {
+    const { data } = await axiosInstance.post(
+        `/student/course-progress/reset-progress`, 
+        {
+            userId, 
+            courseId
+        }
+    );
   
-//     return data;
-//   }
+    return data;
+  }

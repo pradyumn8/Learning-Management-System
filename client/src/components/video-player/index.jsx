@@ -8,8 +8,14 @@ import { Slider } from '../ui/slider';
 import { Button } from '../ui/button';
 import { Maximize, Minimize, Pause, Play, RotateCcw, RotateCw, Volume2, VolumeX } from 'lucide-react';
 
-function VideoPlayer({ width = "100%", height = "100%", url, onProgressUpdate}) {
-
+function VideoPlayer({
+    width = "100%",
+    height = "100%",
+    url,
+    onProgressUpdate,
+    progressData,
+  }) {
+    
     const [playing, setPlaying] = useState(false)
     const [volume, setVolume] = useState(0.5)
     const [muted, setMuted] = useState(false)

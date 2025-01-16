@@ -74,18 +74,33 @@ function StudentViewCoursesPage() {
 
     }
 
+    // async function handleCourseNavigate(getCurrentCourseId) {
+    //     const response = await checkCoursePurchaseInfoService(getCurrentCourseId,auth?.user?._id);
+        
+    //     if(response?.success){
+    //         navigate(`/course-progress/${getCurrentCourseId}`)
+    //     } else {
+    //         navigate(`/course/details/${getCurrentCourseId}`)
+    //     }
+    //     console.log(response, "handleCourseNavigate");
+        
+    // }
+    
     async function handleCourseNavigate(getCurrentCourseId) {
-        const response = await checkCoursePurchaseInfoService(getCurrentCourseId,auth?.user?._id);
-        
-        if(response?.success){
-            navigate(`/course-progress/${getCurrentCourseId}`)
-        } else {
-            navigate(`/course/details/${getCurrentCourseId}`)
+        try {
+            const response = await checkCoursePurchaseInfoService(getCurrentCourseId, auth?.user?._id);
+            
+            if (response?.success) {
+                navigate(`/course-progress/${getCurrentCourseId}`);
+            } else {
+                navigate(`/course/details/${getCurrentCourseId}`);
+            }
+            console.log(response, 'handleCourseNavigate');
+        } catch (error) {
+            console.error('Error in handleCourseNavigate:', error);
         }
-        console.log(response, "handleCourseNavigate");
-        
     }
-
+    
     useEffect(() => {
         const buildQueryStringForFilters = createSearchParamsHelper(filters)
         setSearchParams(new URLSearchParams(buildQueryStringForFilters))
