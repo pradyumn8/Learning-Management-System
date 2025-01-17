@@ -183,13 +183,13 @@ function CourseCurriculum() {
     const getCurrentVideoPublicId = cpyCourseCurriculumFormData[currentIndex].public_id
 
     const response = await mediaDeleteService(getCurrentVideoPublicId);
+
     if(response?.success){
       cpyCourseCurriculumFormData = cpyCourseCurriculumFormData.filter((_,index)=> index !== currentIndex);
       setCourseCurriculumFormData(cpyCourseCurriculumFormData);
     }
     
   }
-
 
   return (
     <Card>
@@ -214,6 +214,7 @@ function CourseCurriculum() {
       </CardHeader>
       <CardContent>
         <Button
+         disabled={!isCourseCurriculumFormDataValid() || mediaUploadProgress}
           onClick={handleNewLecture}
         >
           Add Lecture
@@ -256,7 +257,7 @@ function CourseCurriculum() {
                         Replace Video
                       </Button>
                       <Button
-                        cpyCourseCurriculumFormData={() => handleDeleteLecture(index)}
+                        onClick={() => handleDeleteLecture(index)}
                         className="bg-red-900"
                       >
                         Delete Lecture
