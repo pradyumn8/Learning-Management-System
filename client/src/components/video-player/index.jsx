@@ -115,15 +115,28 @@ function VideoPlayer({
             document.removeEventListener('fullscreenchange',handleFullScreenChange)
         }
     },[]);
-
-    useEffect(()=>{
-        if(played === 1){
-            onProgressUpdate({
-                ...progressData,
-               progressValue : played,
-            })
+    
+    useEffect(() => {
+        if (played === 1 && typeof onProgressUpdate === 'function') {
+          onProgressUpdate({
+            ...progressData,
+            progressValue: played,
+          });
+        } else if (played === 1) {
+          console.warn("onProgressUpdate is not defined or is not a function");
         }
-    },[played])
+    }, [played]);
+    
+
+    // useEffect(() => {
+    //     if (played === 1) {
+    //       onProgressUpdate({
+    //         ...progressData,
+    //         progressValue: played,
+    //       });
+    //     }
+    //   }, [played]);
+    
 
     return (
         <div ref={playerContainerRef}

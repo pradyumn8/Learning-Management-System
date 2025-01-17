@@ -9,7 +9,7 @@ require('dotenv').config();
 
 const createOrder = async (req, res) => {
     const {
-        coursePricing, 
+        coursePricing,
         userId,
         userName,
         userEmail,
@@ -84,13 +84,15 @@ const capturePaymentAndFinalizeOrder = async (req, res) => {
         // Create Sign
         const sign = razorpay_order_id + "|" + razorpay_payment_id;
 
-        // Create ExpectedSign
         const expectedSign = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY)
             .update(sign.toString())
             .digest("hex");
-
-        // Create isAuthentic
         const isAuthentic = expectedSign === razorpay_signature;
+
+        // for debugging
+        console.log("Calculated Signature:", expectedSign);
+        console.log("Received Signature:", razorpay_signature);
+
 
         // Condition 
         if (isAuthentic) {
@@ -109,7 +111,8 @@ const capturePaymentAndFinalizeOrder = async (req, res) => {
 
             // Call the service to capture and finalize the payment (ensure this function is defined)
             // const verifyData = await captureAndFinalizePaymentService(captureData);
-            const verifyData = await captureAndFinalizePaymentService(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+          const verifyData = await captureAndFinalizePaymentService(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+            console.log("Payment Verification Data:", verifyData);
 
             // If payment is verified successfully, proceed with updating the order and related data
             if (verifyData.success) {
@@ -119,7 +122,9 @@ const capturePaymentAndFinalizeOrder = async (req, res) => {
                 order.razorpayPaymentId = razorpay_payment_id;
                 order.razorpaySignature = razorpay_signature;
 
+                console.log("Updating Order Status to 'paid'...");
                 await order.save();
+                console.log("Order successfully saved!");
 
                 // Update StudentCourses
                 const studentCourses = await StudentCourses.findOne({ userId: order.userId });
@@ -133,7 +138,11 @@ const capturePaymentAndFinalizeOrder = async (req, res) => {
                         dateOfPurchase: order.orderDate,
                         courseImage: order.courseImage,
                     });
+
+                    console.log("Updating StudentCourses...");
                     await studentCourses.save();
+                    console.log("StudentCourses successfully updated!");
+
                 } else {
                     const newStudentCourses = new StudentCourses({
                         userId: order.userId,
@@ -163,6 +172,7 @@ const capturePaymentAndFinalizeOrder = async (req, res) => {
                     },
                 });
 
+
                 // Redirect to the payment return route
                 res.redirect(`/payment-return?courseId=${order.courseId}`);
             } else {
@@ -175,6 +185,34 @@ const capturePaymentAndFinalizeOrder = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error!" });
         console.log(error);
     }
+
+    //     try {
+    //     console.log("Request received at /capture:", req.body);
+
+    //     const sign = razorpay_order_id + "|" + razorpay_payment_id;
+    //     const expectedSign = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY)
+    //         .update(sign.toString())
+    //         .digest("hex");
+    //     const isAuthentic = expectedSign === razorpay_signature;
+
+    //     console.log("Expected signature:", expectedSign, "Is authentic:", isAuthentic);
+
+    //     if (!isAuthentic) {
+    //         return res.status(400).json({ message: "Invalid signature!" });
+    //     }
+
+    //     const order = await Order.findOne({ razorpayOrderId: razorpay_order_id });
+    //     if (!order) {
+    //         return res.status(404).json({ message: "Order not found!" });
+    //     }
+
+    //     // Additional logs for debugging
+    //     console.log("Order found:", order);
+    // } catch (error) {
+    //     console.error("Error in capturePaymentAndFinalizeOrder:", error);
+    //     res.status(500).json({ message: "Internal Server Error!" });
+    // }
+
 };
 
 module.exports = { createOrder, capturePaymentAndFinalizeOrder };

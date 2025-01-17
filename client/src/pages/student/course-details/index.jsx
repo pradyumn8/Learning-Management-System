@@ -21,8 +21,7 @@ function StudentViewCourseDetailsPage() {
         loadingState,
         setLoadingState,
         currentCourseDetailsId,
-        setCurrentCourseDetailsId,
-        setCoursePurchaseId
+        setCurrentCourseDetailsId
     } = useContext(StudentContext);
 
     const {auth} = useContext(AuthContext)
@@ -30,74 +29,32 @@ function StudentViewCourseDetailsPage() {
     const [displayCurrentVideoFreePriview, setDisplayCurrentVideoFreePreview] = useState(null)
     const [showFreePreviewDialog, setShowFreePreviewDialog] = useState(false)
     const [approvalUrl, setApprovalUrl] = useState('')
-    const navigate = useNavigate()
+
     const { id } = useParams()
     const location = useLocation()
-
-
+  
     async function fetchStudentViewCourseDetails() {
-        if (!currentCourseDetailsId) {
-            console.error("currentCourseDetailsId is undefined. Cannot fetch course details.");
-            return;
+
+        const response = await fetchStudentViewCourseDetailsService(currentCourseDetailsId);
+
+        console.log(response,'fetchStudentViewCourseDetails');
+
+        if (response?.success) {
+            setStudentViewCourseDetails(response?.data)
+            setLoadingState(false)
+        } else {
+            setStudentViewCourseDetails(null)
+            setLoadingState(false)
         }
-    
-        const checkCoursePurchaseInfoResponse = await checkCoursePurchaseInfoService(currentCourseDetailsId, auth?.user._id);
-    
-        if (checkCoursePurchaseInfoResponse?.success && checkCoursePurchaseInfoResponse?.data) {
-            navigate(`/course-progress/${currentCourseDetailsId}`);
-            return;
-        }
-    
-        try {
-            const response = await fetchStudentViewCourseDetailsService(currentCourseDetailsId);
-    
-            if (response?.success) {
-                setStudentViewCourseDetails(response?.data);
-                setLoadingState(false);
-            } else {
-                setStudentViewCourseDetails(null);
-                setCoursePurchaseId(false);
-                setLoadingState(false);
-            }
-        } catch (error) {
-            console.error("Error fetching course details:", error);
-            setLoadingState(false);
-        }
+
     }
-    
-    
-    // async function fetchStudentViewCourseDetails() {
-
-    //     const checkCoursePurchaseInfoResponse = await checkCoursePurchaseInfoService(currentCourseDetailsId, auth?.user._id)  
-
-    //     if(checkCoursePurchaseInfoResponse?.success && checkCoursePurchaseInfoResponse?.data){
-    //         navigate(`/course-progress/${currentCourseDetailsId}`)
-    //         return
-    //     }
-
-    //     // console.log(checkCoursePurchaseInfoResponse,'checkCoursePurchaseInfoResponse')
-
-    //     const response = await fetchStudentViewCourseDetailsService(
-    //         currentCourseDetailsId);
-
-    //     // console.log(response,'fetchStudentViewCourseDetails');
-
-    //     if (response?.success) {
-    //         setStudentViewCourseDetails(response?.data)
-    //         setLoadingState(false)
-    //     } else {
-    //         setStudentViewCourseDetails(null)
-    //         setCoursePurchaseId(false)
-    //         setLoadingState(false)
-    //     }
-
-    // }
-
     function handleSetFreePreview(getCurrentVideoInfo) {
         console.log(getCurrentVideoInfo);
         setDisplayCurrentVideoFreePreview(getCurrentVideoInfo?.videoUrl
         )
     }
+
+
 
     async function handleCreatePayment() {
         console.log("handleCreatePayment triggered");
@@ -147,10 +104,18 @@ function StudentViewCourseDetailsPage() {
         
     }
     
+    
     // Function to verify payment after Razorpay success
     const handlePaymentVerify = async (data) => {
+        console.log("Received payment data:", data);
+    
+        if (!window.Razorpay) {
+            console.error("Razorpay script not loaded!");
+            return;
+        }
+    
         const options = {
-            key: import.meta.env.RAZORPAY_KEY_ID,
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID,
             amount: data.amount,
             currency: data.currency,
             name: "StudyBride",
@@ -158,40 +123,40 @@ function StudentViewCourseDetailsPage() {
             order_id: data.id,
             handler: async (response) => {
                 console.log("Razorpay response:", response);
-        
-                    try {
-                        // Prepare payment details to capture and finalize the payment
-                        const captureData = {
-                            razorpay_order_id: response.data.razorpay_order_id,
-                            razorpay_payment_id: response.data.razorpay_payment_id,
-                            razorpay_signature: response.data.razorpay_signature,
-                        };
-                    
-                        // Capture and finalize the payment with backend service
-                        const verifyData = await captureAndFinalizePaymentService(
-                            captureData.razorpay_order_id,
-                            captureData.razorpay_payment_id,
-                            captureData.razorpay_signature
-                        );
-                    
-                        if (verifyData.success) {
-                            // Toast.success(verifyData.message); // Show success message
-                            console.log(verifyData.message,'verifyData.message'); // Show success message
-                        } else {
-                            console.error("Payment verification failed:", verifyData.error);
-                        }
-                    } catch (error) {
-                        console.log("Payment verification failed:", error);
+    
+                const captureData = {
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                };
+    
+                try {
+                    console.log("Sending capture data to backend:", captureData);
+    
+                    const verifyData = await captureAndFinalizePaymentService(
+                        captureData.razorpay_order_id,
+                        captureData.razorpay_payment_id,
+                        captureData.razorpay_signature
+                    );
+    
+                    if (verifyData.success) {
+                        console.log("Payment captured successfully:", verifyData.message);
+                    } else {
+                        console.error("Payment verification failed:", verifyData.error);
                     }
+                } catch (error) {
+                    console.error("Unexpected error during payment verification:", error);
+                }
             },
             theme: {
-                color: "#5f63b8"
-            }
+                color: "#5f63b8",
+            },
         };
     
         const rzp1 = new window.Razorpay(options);
         rzp1.open();
     };
+    
     
     
     useEffect(() => {
@@ -200,7 +165,7 @@ function StudentViewCourseDetailsPage() {
 
 
     useEffect(() => {
-        // console.log(currentCourseDetailsId, "currentCourseDetailsId");
+        console.log(currentCourseDetailsId, "currentCourseDetailsId");
         if (currentCourseDetailsId !== null) fetchStudentViewCourseDetails()
     }, [currentCourseDetailsId]);
 
@@ -219,10 +184,10 @@ function StudentViewCourseDetailsPage() {
 
     if (loadingState) return <Skeleton />;
 
-    if(approvalUrl !== ''){
-        console.log("Redirecting to approval URL:", approvalUrl); 
-        window.location.href = approvalUrl;
-    }
+    // if(approvalUrl !== ''){
+    //     console.log("Redirecting to approval URL:", approvalUrl); 
+    //     window.location.href = approvalUrl;
+    // }
 
     const getIndexOfFreePreviewUrl = studentViewCourseDetails !== null ?
         studentViewCourseDetails?.curriculum?.findIndex(item => item.freePreview)

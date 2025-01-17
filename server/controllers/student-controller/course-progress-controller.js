@@ -22,8 +22,9 @@ const markCurrentLectureAsCompleted = async (req, res) => {
             })
             await progress.save()
         } else {
-            const lectureProgress = progress.lecturesProgress.find(item => item.lectureId === lectureId);
-            
+            // const lectureProgress = progress.lecturesProgress.find(item => item.lectureId === lectureId);
+            const lectureProgress = progress.lecturesProgress.find(item => item.lectureId.toString() === lectureId.toString());
+
             if(lectureProgress){
                 lectureProgress.completed = true;
                 lectureProgress.dateViewed = new Date();
@@ -45,9 +46,14 @@ const markCurrentLectureAsCompleted = async (req, res) => {
             })
         }
         // check all the lectures are completed or not
-        const allLecturesCompleted = progress.lecturesProgress.length ===
-        course.curriculum.length && progress.lecturesProgress.every(item=>item.completed);
 
+        // const allLecturesCompleted = progress.lecturesProgress.length ===
+        // course.curriculum.length && progress.lecturesProgress.every(item=>item.completed);
+
+        const allLecturesCompleted = course.curriculum.every(lecture =>
+            progress.lecturesProgress.some(item => item.lectureId.toString() === lecture.toString() && item.completed)
+        );
+        
         if(allLecturesCompleted) {
             progress.completed = true;
             progress.completionDate = new Date();
@@ -63,7 +69,7 @@ const markCurrentLectureAsCompleted = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        res.CourseProgress(500).json({ success: false, message: 'Error marking lecture as completed' })
+        res.status(500).json({ success: false, message: 'Error marking lecture as completed' })
     }
 }
 
@@ -79,7 +85,7 @@ const getCurrentCourseProgress = async (req, res) => {
 
         if (!isCurrentCoursePurchasedByCurrentUserOrNot) {
             return res.status(200).json({
-                success: false,
+                success: true,isCurrentCoursePurchasedByCurrentUserOrNot,
                 data: {
                 isPurchased: true,
                 },
@@ -90,11 +96,12 @@ const getCurrentCourseProgress = async (req, res) => {
         const currentUserCourseProgress = await CourseProgress.findOne({ 
             userId, courseId });
 
-        if (!currentUserCourseProgress || currentUserCourseProgress?.lectureProgress?.length === 0) {
+        if (!currentUserCourseProgress || currentUserCourseProgress?.lecturesProgress?.length === 0) {
             const course = await Course.findById(courseId);
             if (!course) {
-                return res.status(404).json({ success: false, message: 'Course not found' })
+                return res.status(404).json({ success: false, message: 'Course not found' });
             }
+            
             return res.status(200).json({
                 success: true,
                 message: 'No progress found, you have not started the course yet',
@@ -124,7 +131,7 @@ const getCurrentCourseProgress = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        res.CourseProgress(500).json({ success: false, message: 'Error getting course progress' })
+        res.status(500).json({ success: false, message: 'Error getting course progress' })
     }
 }
 
@@ -159,7 +166,7 @@ const resetCurrentCourseProgress = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        res.CourseProgress(500).json({ success: false, message: 'Error resetting course progress' })
+        res.status(500).json({ success: false, message: 'Error resetting course progress' })
 
     }
 };
