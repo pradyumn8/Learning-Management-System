@@ -9,7 +9,7 @@ require('dotenv').config();
 
 const createOrder = async (req, res) => {
     const {
-        coursePricing,
+        coursePricing, 
         userId,
         userName,
         userEmail,
@@ -75,24 +75,22 @@ const createOrder = async (req, res) => {
     }
 };
 
-
-//try to implement redirect to payment return route
+// ROUTE 2 : Create Verify Api Using POST Method http://localhost:4000/api/payment/verify
 const capturePaymentAndFinalizeOrder = async (req, res) => {
+
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
     try {
         // Create Sign
         const sign = razorpay_order_id + "|" + razorpay_payment_id;
 
+        // Create ExpectedSign
         const expectedSign = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY)
             .update(sign.toString())
             .digest("hex");
+
+        // Create isAuthentic
         const isAuthentic = expectedSign === razorpay_signature;
-
-        // for debugging
-        console.log("Calculated Signature:", expectedSign);
-        console.log("Received Signature:", razorpay_signature);
-
 
         // Condition 
         if (isAuthentic) {
@@ -102,82 +100,57 @@ const capturePaymentAndFinalizeOrder = async (req, res) => {
                 return res.status(404).json({ message: 'Order not found!' });
             }
 
-            // Prepare the capture data to be sent to your backend service for payment finalization
-            const captureData = {
-                razorpay_order_id: razorpay_order_id,
-                razorpay_payment_id: razorpay_payment_id,
-                razorpay_signature: razorpay_signature,
-            };
+            // Update order status to "paid"
+            order.paymentStatus = 'paid';
+            order.orderStatus = 'confirmed';
+            order.razorpayPaymentId = razorpay_payment_id;
+            order.razorpaySignature = razorpay_signature;
 
-            // Call the service to capture and finalize the payment (ensure this function is defined)
-            // const verifyData = await captureAndFinalizePaymentService(captureData);
-          const verifyData = await captureAndFinalizePaymentService(razorpay_order_id, razorpay_payment_id, razorpay_signature);
-            console.log("Payment Verification Data:", verifyData);
+            await order.save();
 
-            // If payment is verified successfully, proceed with updating the order and related data
-            if (verifyData.success) {
-                // Update order status to "paid"
-                order.paymentStatus = 'paid';
-                order.orderStatus = 'confirmed';
-                order.razorpayPaymentId = razorpay_payment_id;
-                order.razorpaySignature = razorpay_signature;
+            // Update StudentCourses
+            const studentCourses = await StudentCourses.findOne({ userId: order.userId });
 
-                console.log("Updating Order Status to 'paid'...");
-                await order.save();
-                console.log("Order successfully saved!");
-
-                // Update StudentCourses
-                const studentCourses = await StudentCourses.findOne({ userId: order.userId });
-
-                if (studentCourses) {
-                    studentCourses.courses.push({
-                        courseId: order.courseId,
-                        title: order.courseTitle,
-                        instructorId: order.instructorId,
-                        instructorName: order.instructorName,
-                        dateOfPurchase: order.orderDate,
-                        courseImage: order.courseImage,
-                    });
-
-                    console.log("Updating StudentCourses...");
-                    await studentCourses.save();
-                    console.log("StudentCourses successfully updated!");
-
-                } else {
-                    const newStudentCourses = new StudentCourses({
-                        userId: order.userId,
-                        courses: [
-                            {
-                                courseId: order.courseId,
-                                title: order.courseTitle,
-                                instructorId: order.instructorId,
-                                instructorName: order.instructorName,
-                                dateOfPurchase: order.orderDate,
-                                courseImage: order.courseImage,
-                            },
-                        ],
-                    });
-                    await newStudentCourses.save();
-                }
-
-                // Update Course schema with student details
-                await Course.findByIdAndUpdate(order.courseId, {
-                    $addToSet: {
-                        students: {
-                            studentId: order.userId,
-                            studentName: order.userName,
-                            studentEmail: order.userEmail,
-                            paidAmount: order.coursePricing,
-                        },
-                    },
+            if (studentCourses) {
+                studentCourses.courses.push({
+                    courseId: order.courseId,
+                    title: order.courseTitle,
+                    instructorId: order.instructorId,
+                    instructorName: order.instructorName,
+                    dateOfPurchase: order.orderDate,
+                    courseImage: order.courseImage,
                 });
-
-
-                // Redirect to the payment return route
-                res.redirect(`/payment-return?courseId=${order.courseId}`);
+                await studentCourses.save();
             } else {
-                res.status(400).json({ message: "Payment verification failed: " + verifyData.error });
+                const newStudentCourses = new StudentCourses({
+                    userId: order.userId,
+                    courses: [
+                        {
+                            courseId: order.courseId,
+                            title: order.courseTitle,
+                            instructorId: order.instructorId,
+                            instructorName: order.instructorName,
+                            dateOfPurchase: order.orderDate,
+                            courseImage: order.courseImage,
+                        },
+                    ],
+                });
+                await newStudentCourses.save();
             }
+
+            // Update Course schema with student details
+            await Course.findByIdAndUpdate(order.courseId, {
+                $addToSet: {
+                    students: {
+                        studentId: order.userId,
+                        studentName: order.userName,
+                        studentEmail: order.userEmail,
+                        paidAmount: order.coursePricing,
+                    },
+                },
+            });
+
+            res.json({ message: "Payment Successfully" });
         } else {
             res.status(400).json({ message: "Invalid signature!" });
         }
@@ -185,34 +158,6 @@ const capturePaymentAndFinalizeOrder = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error!" });
         console.log(error);
     }
-
-    //     try {
-    //     console.log("Request received at /capture:", req.body);
-
-    //     const sign = razorpay_order_id + "|" + razorpay_payment_id;
-    //     const expectedSign = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY)
-    //         .update(sign.toString())
-    //         .digest("hex");
-    //     const isAuthentic = expectedSign === razorpay_signature;
-
-    //     console.log("Expected signature:", expectedSign, "Is authentic:", isAuthentic);
-
-    //     if (!isAuthentic) {
-    //         return res.status(400).json({ message: "Invalid signature!" });
-    //     }
-
-    //     const order = await Order.findOne({ razorpayOrderId: razorpay_order_id });
-    //     if (!order) {
-    //         return res.status(404).json({ message: "Order not found!" });
-    //     }
-
-    //     // Additional logs for debugging
-    //     console.log("Order found:", order);
-    // } catch (error) {
-    //     console.error("Error in capturePaymentAndFinalizeOrder:", error);
-    //     res.status(500).json({ message: "Internal Server Error!" });
-    // }
-
 };
 
 module.exports = { createOrder, capturePaymentAndFinalizeOrder };
