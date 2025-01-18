@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const LetureProgressSchema = new mongoose.Schema({
     lectureId : String,
-    viewed : Boolean,
-    dateViewed : Date
+    completed : Boolean,
+    dateCompleted : Date
 })
 
 const CourseProgressSchema = new mongoose.Schema({

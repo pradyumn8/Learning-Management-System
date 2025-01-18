@@ -27,7 +27,7 @@ const markCurrentLectureAsCompleted = async (req, res) => {
 
             if(lectureProgress){
                 lectureProgress.completed = true;
-                lectureProgress.dateViewed = new Date();
+                lectureProgress.dateCompleted = new Date();
             } else {
                 progress.lecturesProgress.push({
                     lectureId,

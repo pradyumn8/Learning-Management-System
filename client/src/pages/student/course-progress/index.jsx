@@ -63,7 +63,7 @@ function StudentViewCourseProgressPage() {
           console.log("logging here");
           const lastIndexOfViewedAsTrue = response?.data?.progress.reduceRight(
             (acc, obj, index) => {
-              return acc === -1 && obj.viewed ? index : acc;
+              return acc === -1 && obj.completed ? index : acc;
             },
             -1
           );
@@ -198,7 +198,7 @@ function StudentViewCourseProgressPage() {
                       >
                         {studentCurrentCourseProgress?.progress?.find(
                           (progressItem) => progressItem.lectureId === item._id
-                        )?.viewed ? (
+                        )?.completed ? (
                           <Check className="h-4 w-4 text-green-500" />
                         ) : (
                           <Play className="h-4 w-4 " />
