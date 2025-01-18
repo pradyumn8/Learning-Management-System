@@ -111,12 +111,17 @@ function CourseCurriculum() {
     }
   }
 
+
   function isCourseCurriculumFormDataValid() {
     return courseCurriculumFormData.every((item) => {
+      if (!item || typeof item !== "object") {
+        console.error("Invalid lecture:", item);
+        return false;
+      }
       return (
-        item &&
-        typeof item === "object" &&
+        typeof item.title === "string" &&
         item.title.trim() !== "" &&
+        typeof item.videoUrl === "string" &&
         item.videoUrl.trim() !== ""
       );
     });
