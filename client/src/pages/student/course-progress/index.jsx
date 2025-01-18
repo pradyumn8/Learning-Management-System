@@ -49,13 +49,14 @@ function StudentViewCourseProgressPage() {
           progress: response?.data?.progress,
         });
 
-        if (response?.data?.completed) {
-          setCurrentLecture(response?.data?.courseDetails?.curriculum[0]);
+
+        if (response?.data?.watched) {
+          setCurrentLecture(null);
           setShowCourseCompleteDialog(true);
           setShowConfetti(true);
-
           return;
         }
+        
 
         if (response?.data?.progress?.length === 0) {
           setCurrentLecture(response?.data?.courseDetails?.curriculum[0]);
@@ -78,20 +79,21 @@ function StudentViewCourseProgressPage() {
     }
   }
 
-  async function updateCourseProgress() {
-    if (currentLecture) {
-      const response = await markLectureAsCompletedService(
-        auth?.user?._id,
-        studentCurrentCourseProgress?.courseDetails?._id,
-        currentLecture._id
-      );
 
-      if (response?.success) {
-        fetchCurrentCourseProgress();
-      }
+  async function updateCourseProgress() {
+    if (!currentLecture) return;
+  
+    const response = await markLectureAsCompletedService(
+      auth?.user?._id,
+      studentCurrentCourseProgress?.courseDetails?._id,
+      currentLecture._id
+    );
+  
+    if (response?.success) {
+      fetchCurrentCourseProgress();
     }
   }
-
+  
   async function handleRewatchCourse() {
     const response = await resetCourseProgressService(
       auth?.user?._id,
@@ -114,10 +116,15 @@ function StudentViewCourseProgressPage() {
     if (currentLecture?.progressValue === 1) updateCourseProgress();
   }, [currentLecture]);
 
-  useEffect(() => {
-    if (showConfetti) setTimeout(() => setShowConfetti(false), 15000);
-  }, [showConfetti]);
 
+  useEffect(() => {
+    let timeout;
+    if (showConfetti) {
+      timeout = setTimeout(() => setShowConfetti(false), 15000);
+    }
+    return () => clearTimeout(timeout);
+  }, [showConfetti]);
+  
   console.log(lockCourse,'lockCourse');
   console.log(studentCurrentCourseProgress, 'studentCurrentCourseProgress');
   console.log(currentLecture, "currentLecture");

@@ -9,7 +9,7 @@ const LetureProgressSchema = new mongoose.Schema({
 const CourseProgressSchema = new mongoose.Schema({
     userId : String,
     courseId : String,
-    completed : Boolean,
+    watched : Boolean,
     completionDate : Date,
     lecturesProgress : [LetureProgressSchema]
 });
