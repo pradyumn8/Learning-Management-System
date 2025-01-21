@@ -1,7 +1,6 @@
 const Course = require('../../models/Course')
 const StudentCourses = require('../../models/StudentCourses')
 
-
 const getAllStudentViewCourses = async (req, res) => {
     try {
         const {
@@ -11,8 +10,9 @@ const getAllStudentViewCourses = async (req, res) => {
             sortBy = 'price-lowtohigh',
         } = req.query;
 
-        // Initialize filters
-        let filters = {};
+        // Initialize filters with isDeleted as false to exclude deleted courses
+        let filters = { isDeleted: false };
+
         if (category) {
             filters.category = { $in: category.split(',') };
         }
@@ -47,7 +47,7 @@ const getAllStudentViewCourses = async (req, res) => {
                 break;
         }
 
-        // Fetch courses from the database
+        // Fetch courses from the database, excluding deleted ones
         const coursesList = await Course.find(filters).sort(sortParam);
 
         res.status(200).json({
@@ -63,32 +63,36 @@ const getAllStudentViewCourses = async (req, res) => {
     }
 };
 
+
 const getStudentViewCourseDetails = async (req, res) => {
     try {
-      const { id } = req.params;
-      const courseDetails = await Course.findById(id);
-  
-      if (!courseDetails) {
-        return res.status(404).json({
-          success: false,
-          message: "No course details found",
-          data: null,
+        const { id } = req.params;
+
+        // Fetch course details, ensuring the course is not deleted
+        const courseDetails = await Course.findOne({ _id: id, isDeleted: false });
+
+        if (!courseDetails) {
+            return res.status(404).json({
+                success: false,
+                message: "No course details found or course is deleted",
+                data: null,
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: courseDetails,
         });
-      }
-  
-      res.status(200).json({
-        success: true,
-        data: courseDetails,
-      });
     } catch (e) {
-      console.log(e);
-      res.status(500).json({
-        success: false,
-        message: "Some error occured!",
-      });
+        console.log(e);
+        res.status(500).json({
+            success: false,
+            message: "Some error occurred!",
+        });
     }
-  };
-  const checkCoursePurchaseInfo = async (req, res) => {
+};
+
+const checkCoursePurchaseInfo = async (req, res) => {
     try {
         const { id, studentId } = req.params;
 

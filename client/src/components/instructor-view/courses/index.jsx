@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table"
 import { courseCurriculumInitialFormData, courseLandingInitialFormData } from '@/config';
 import { InstructorContext } from '@/context/instructor-context';
+import axios from 'axios';
 import { Delete, Edit } from 'lucide-react';
 
 import React, { useContext } from 'react'
@@ -26,6 +27,28 @@ function InstructorCourses({ listOfCourses }) {
     setCourseCurriculumFormData,
   } = useContext(InstructorContext);
 
+
+const handleDeleteCourse = async (id) => {
+  if (window.confirm("Are you sure you want to delete this course?")) {
+    try {
+      const response = await axios.delete(
+        `http://localhost:5000/instructor/course/delete/${id}`
+      );
+      if (response.data.success) {
+        alert(response.data.message);
+
+        // Reload the page to fetch fresh data
+        window.location.reload()
+      } else {
+        alert(response.data.message || "Failed to delete course.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred while deleting the course.");
+    }
+  }
+};
+ 
   return (
     <Card>
       <CardHeader className="flex justify-between flex-row items-center">
@@ -71,7 +94,10 @@ function InstructorCourses({ listOfCourses }) {
                         >
                           <Edit className="h-6 w-6" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button           
+                        onClick={() => handleDeleteCourse(course._id)}
+                          variant="ghost"
+                          size="sm">
                           <Delete className="h-6 w-6" />
                         </Button>
                       </TableCell>

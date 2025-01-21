@@ -1,8 +1,6 @@
 const Course = require('../../models/Course')
 
 
-
-
 const addNewCourse = async (req, res) => {
     try {
 
@@ -33,10 +31,12 @@ const getAllCourses = async (req, res) => {
 
         const courseList = await Course.find({});
 
+            // deletion of course
+            const activeCourses = courseList.filter((course) => course.isDeleted!==true);
         res.status(200).json(
             {
                 success: true,
-                data: courseList,
+                data: activeCourses
             }
         );
 
@@ -74,7 +74,6 @@ const getCourseDetailsById = async (req, res) => {
     }
 }
 
-
 const updateCourseById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -103,4 +102,32 @@ const updateCourseById = async (req, res) => {
     }
 }
 
-module.exports = { addNewCourse, getAllCourses, updateCourseById, getCourseDetailsById }
+const deleteCourseById = async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      const deletedCourse = await Course.findByIdAndUpdate(id, { isDeleted: true });
+  
+      if (!deletedCourse) {
+        return res.status(404).json({
+          success: false,
+          message: 'Course not found!'
+        });
+      }
+  
+      res.status(200).json({
+        success: true,
+        message: 'Course has been marked as deleted and hidden from student view.',
+        data: null
+      });
+  
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        success: false,
+        message: 'Some error occurred!'
+      });
+    }
+  };
+  
+module.exports = { addNewCourse, getAllCourses,deleteCourseById ,updateCourseById, getCourseDetailsById }
