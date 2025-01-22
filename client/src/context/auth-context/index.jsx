@@ -50,7 +50,6 @@ export default function AuthProvider({ children }) {
                 user: null,
             });
             // console.error("Login failed:", response.data.message);
-
         }
     }
 

@@ -74,20 +74,6 @@ function StudentViewCoursesPage() {
 
     }
 
-    // async function handleCourseNavigate(getCurrentCourseId) {
-    //     const response = await checkCoursePurchaseInfoService(
-    //       getCurrentCourseId,
-    //       auth?.user?._id
-    //     );
-    
-    //     if (response?.success) {
-    //       if (response?.data) {
-    //         navigate(`/course-progress/${getCurrentCourseId}`);
-    //       } else {
-    //         navigate(`/course/details/${getCurrentCourseId}`);
-    //       }
-    //     }
-    //   }
       async function handleCourseNavigate(getCurrentCourseId) {
         try {
             const response = await checkCoursePurchaseInfoService(

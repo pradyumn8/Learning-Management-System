@@ -1,6 +1,5 @@
 import axiosInstance from "@/api/axiosInstance";
 
-
 export async function registerService(formData) {
     const data = await axiosInstance.post('/auth/register', {
         ...formData,
@@ -10,19 +9,12 @@ export async function registerService(formData) {
     return data
 }
 
-
 export async function loginService(formData) {
     const data = await axiosInstance.post('/auth/login', formData)
 
     return data
 }
 
-
-// export async function checkAuthService() {
-//     const data = await axiosInstance.get('/auth/check-auth')
-
-//     return data
-// }
 export async function checkAuthService() {
     try {
         // Retrieve the token from sessionStorage
@@ -47,8 +39,6 @@ export async function checkAuthService() {
     }
 }
 
-
-
 export async function mediaUploadService(formData, onProgressCallback = () => { }) {
     const { data } = await axiosInstance.post("/media/upload", formData, {
         onUploadProgress: (progressEvent) => {
@@ -64,7 +54,6 @@ export async function mediaUploadService(formData, onProgressCallback = () => { 
     });
     return data;
 }
-
 
 export async function mediaDeleteService(id) {
     const { data } = await axiosInstance.delete(`/media/delete/${id}`);
@@ -84,14 +73,11 @@ export async function addNewCourseService(formData) {
     return data;
 }
 
-
 export async function fetchInstructorCourseDetailsService(id) {
     const { data } = await axiosInstance.get(`/instructor/course/get/details/${id}`);
 
     return data;
 }
-
-
 
 export async function updateCourseByIdService(id, formData) {
     const { data } = await axiosInstance.put(
@@ -101,8 +87,6 @@ export async function updateCourseByIdService(id, formData) {
 
     return data;
 }
-
-
 
 export async function mediaBulkUploadService(formData, onProgressCallback = () => { }) {
     const { data } = await axiosInstance.post("/media/bulk-upload", formData, {
@@ -120,14 +104,11 @@ export async function mediaBulkUploadService(formData, onProgressCallback = () =
     return data;
 }
 
-
-
 export async function fetchStudentCourseListService(query) {
     const { data } = await axiosInstance.get(`/student/course/get?${query}`);
-  
-    return data;
-  }
 
+    return data;
+}
 
 export async function fetchStudentViewCourseDetailsService(courseId) {
     const { data } = await axiosInstance.get(
@@ -136,8 +117,7 @@ export async function fetchStudentViewCourseDetailsService(courseId) {
     return data;
 }
 
-
-  export async function checkCoursePurchaseInfoService(courseId, studentId) {
+export async function checkCoursePurchaseInfoService(courseId, studentId) {
     try {
         const { data } = await axiosInstance.get(
             `/student/course/purchase-info/${courseId}/${studentId}`
@@ -148,8 +128,6 @@ export async function fetchStudentViewCourseDetailsService(courseId) {
         return { success: false, message: error.response?.data?.message || "Unknown error" };
     }
 }
-
-
 
 export async function createPaymentService(formData) {
     try {
@@ -163,24 +141,15 @@ export async function createPaymentService(formData) {
 
 export async function captureAndFinalizePaymentService(razorpay_order_id, razorpay_payment_id, razorpay_signature) {
     try {
-    //   const { data } = await axiosInstance.post(`/student/order/capture`, captureData);
-      const { data } = await axiosInstance.post(`/student/order/capture`, {razorpay_order_id, razorpay_payment_id, razorpay_signature});
-  
-      return data;
+        //   const { data } = await axiosInstance.post(`/student/order/capture`, captureData);
+        const { data } = await axiosInstance.post(`/student/order/capture`, { razorpay_order_id, razorpay_payment_id, razorpay_signature });
+
+        return data;
     } catch (error) {
-      console.error("Error in captureAndFinalizePaymentService:", error);
-      return { success: false, error: error.response?.data?.message || "An error occurred" };
+        console.error("Error in captureAndFinalizePaymentService:", error);
+        return { success: false, error: error.response?.data?.message || "An error occurred" };
     }
-  }
-
-
-
-//   export async function fetchStudentBoughtCoursesService(studentId) {
-//       const { data } = await axiosInstance.get(`/student/courses-bought/get/${studentId}`);
-    
-//       return data;
-//     }
-  
+}
 
 export async function fetchStudentBoughtCoursesService(studentId) {
     try {
@@ -193,40 +162,35 @@ export async function fetchStudentBoughtCoursesService(studentId) {
         return { success: false, error: error.response?.data?.message || 'An error occurred' };
     }
 }
-  
-  
+
 export async function getCurrentCourseProgressService(userId, courseId) {
     const { data } = await axiosInstance.get(
-      `/student/course-progress/get/${userId}/${courseId}`
+        `/student/course-progress/get/${userId}/${courseId}`
     );
-  
+
     return data;
-  }
-  
-  
+}
 
 export async function markLectureAsCompletedService(userId, courseId, lectureId) {
     const { data } = await axiosInstance.post(
-        `/student/course-progress/mark-lecture-viewed`,{
-            userId, 
-            courseId, 
-            lectureId
-        }
+        `/student/course-progress/mark-lecture-viewed`, {
+        userId,
+        courseId,
+        lectureId
+    }
     );
-    
+
     return data;
-  }
- 
-  
+}
 
 export async function resetCourseProgressService(userId, courseId) {
     const { data } = await axiosInstance.post(
-        `/student/course-progress/reset-progress`, 
+        `/student/course-progress/reset-progress`,
         {
-            userId, 
+            userId,
             courseId
         }
     );
-  
+
     return data;
-  }
+}

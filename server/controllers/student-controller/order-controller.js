@@ -5,8 +5,6 @@ const razorpayInstance = require('../../helpers/razorpay');
 const crypto = require('crypto');
 require('dotenv').config();
 
-
-
 const createOrder = async (req, res) => {
     const {
         coursePricing, 

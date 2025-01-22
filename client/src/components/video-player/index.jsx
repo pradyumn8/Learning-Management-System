@@ -144,7 +144,6 @@ function VideoPlayer({
         ${isFullScreen ? 'w-screen h-screen' : ''}`}
             style={{ width, height }}
             onMouseMove={handleMouseMove}
-            // onMouseLeave={()=>setShowControls(false)}
         >
             <ReactPlayer
                 ref={playerRef}
