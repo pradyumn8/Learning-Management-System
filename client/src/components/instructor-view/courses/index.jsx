@@ -1,5 +1,5 @@
 
-
+import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -28,26 +28,27 @@ function InstructorCourses({ listOfCourses }) {
   } = useContext(InstructorContext);
 
 
-const handleDeleteCourse = async (id) => {
-  if (window.confirm("Are you sure you want to delete this course?")) {
-    try {
-      const response = await axios.delete(
-        `http://localhost:5000/instructor/course/delete/${id}`
-      );
-      if (response.data.success) {
-        alert(response.data.message);
 
-        // Reload the page to fetch fresh data
-        window.location.reload()
-      } else {
-        alert(response.data.message || "Failed to delete course.");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("An error occurred while deleting the course.");
+const handleDeleteCourse = async (id) => {
+  try {
+    const { data } = await axios.delete(
+      `http://localhost:5000/instructor/course/delete/${id}`
+    );
+
+    if (data.success) {
+      // setCourses(prev => prev.filter(course => course._id !== id));
+      window.location.reload();
+      // toast.success(data.message);
+
+    } else {
+      toast.error(data.message || "Failed to delete course.");
     }
+  } catch (error) {
+    console.error(error);
+    toast.error("An error occurred while deleting the course.");
   }
 };
+
  
   return (
     <Card>

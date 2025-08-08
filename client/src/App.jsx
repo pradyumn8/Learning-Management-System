@@ -13,82 +13,86 @@ import StudentViewCourseDetailsPage from "./pages/student/course-details";
 import RazorpayPaymentReturnPage from "./pages/student/payment-return";
 import StudentCoursesPage from "./pages/student/student-courses";
 import StudentViewCourseProgressPage from "./pages/student/course-progress";
+import toast, { Toaster } from 'react-hot-toast';
 
 function App() {
 
   const {auth} = useContext(AuthContext)
 
   return (
-    <Routes>
-      <Route
-      path="/auth"
-      element={
-        <RouteGuard
-        element={<Authpage/>}
-        authenticated={auth.authenticate}
-        user={auth?.user}
-        />
-      }
-      />
-      <Route
-      path="/instructor"
-      element={
-        <RouteGuard
+    <>
+      <Toaster />
+      <Routes>
+        <Route
+        path="/auth"
         element={
-          <InstructorDashboardPage/>
+          <RouteGuard
+          element={<Authpage/>}
+          authenticated={auth.authenticate}
+          user={auth?.user}
+          />
         }
-        authenticated={auth?.authenticate}
-        user={auth?.user}
         />
-      }
-     />
-      <Route
-      path="/instructor/create-new-course"
-      element={
-        <RouteGuard
+        <Route
+        path="/instructor"
         element={
-          <AddNewCoursePage/>
+          <RouteGuard
+          element={
+            <InstructorDashboardPage/>
+          }
+          authenticated={auth?.authenticate}
+          user={auth?.user}
+          />
         }
-        authenticated={auth?.authenticate}
-        user={auth?.user}
-        />
-      }
-     />
-      <Route
-      path="/instructor/edit-course/:courseId"
-      element={
-        <RouteGuard
+       />
+        <Route
+        path="/instructor/create-new-course"
         element={
-          <AddNewCoursePage/>
+          <RouteGuard
+          element={
+            <AddNewCoursePage/>
+          }
+          authenticated={auth?.authenticate}
+          user={auth?.user}
+          />
         }
-        authenticated={auth?.authenticate}
-        user={auth?.user}
-        />
-      }
-     />
-      <Route
-      path="/"
-      element={
-        <RouteGuard
+       />
+        <Route
+        path="/instructor/edit-course/:courseId"
         element={
-          <StudentViewCommonLayout/>
+          <RouteGuard
+          element={
+            <AddNewCoursePage/>
+          }
+          authenticated={auth?.authenticate}
+          user={auth?.user}
+          />
         }
-        authenticated={auth?.authenticate}
-        user={auth?.user}
-        />
-      }
-     >
-    
-      <Route path="" element={<StudentHomePage/>}/>
-      <Route path="home" element={<StudentHomePage/>}/>
-      <Route path="courses" element={<StudentViewCoursesPage/>}/>
-      <Route path="course/details/:id" element={<StudentViewCourseDetailsPage/>}/>
-      <Route path="payment-return" element={<RazorpayPaymentReturnPage/>}/>
-      <Route path="student-courses" element={<StudentCoursesPage/>}/>
-      <Route path="course-progress/:id" element={<StudentViewCourseProgressPage/>}/>
-      </Route>
-      <Route path="*" element={<NotFoundPage/>}/>
-    </Routes>
+       />
+        <Route
+        path="/"
+        element={
+          <RouteGuard
+          element={
+            <StudentViewCommonLayout/>
+          }
+          authenticated={auth?.authenticate}
+          user={auth?.user}
+          />
+        }
+       >
+      
+        <Route path="" element={<StudentHomePage/>}/>
+        <Route path="home" element={<StudentHomePage/>}/>
+        <Route path="courses" element={<StudentViewCoursesPage/>}/>
+        <Route path="course/details/:id" element={<StudentViewCourseDetailsPage/>}/>
+        <Route path="payment-return" element={<RazorpayPaymentReturnPage/>}/>
+        <Route path="student-courses" element={<StudentCoursesPage/>}/>
+        <Route path="course-progress/:id" element={<StudentViewCourseProgressPage/>}/>
+        </Route>
+        <Route path="*" element={<NotFoundPage/>}/>
+      </Routes>
+    </>
   );
 }
 
